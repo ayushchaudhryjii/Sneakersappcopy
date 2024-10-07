@@ -13,7 +13,7 @@ const HomeScreen = () => {
         <Image source={item.image} resizeMode='contain' style={{height:RFValue(60),width:RFValue(60)}}/>
 
       </View>
-      <View style={{width:"60%",justifyContent:"center",paddingLeft:10}}>
+      <View style={{width:"60%",justifyContent:"center",paddingLeft:RFValue(10),gap:RFValue(10)}}>
         <Text style={{color:"#1C1D21AD", fontSize:14, fontWeight:"bold"}}>{item.name}</Text>
         <Text style={{fontSize:16, fontWeight:"bold"}}>{item.brandName}</Text>
         
