@@ -34,10 +34,11 @@ const OnBoardScreen = ({ navigation }) => {
   const handleSend = async () => {
     const phone_number = `+91${mobileNo}`; // Construct the phone number
     try {
-      const response = await axios.post('https://f340-2401-4900-1f3a-6dbf-ca43-b64b-f271-d485.ngrok-free.app/signup', {
+      const response = await axios.post('https://sneakers-rough-frost-7777.fly.dev/signup', {
         phone_number
       });
       console.log('Response:', response.data);
+      Alert.alert("OTP send successfully")
       // Handle successful response (e.g., show success message, navigate, etc.)
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
@@ -48,7 +49,7 @@ const OnBoardScreen = ({ navigation }) => {
   const handleVerifyOtp = async () => {
     const phone_number = `+91${mobileNo}`; // Construct the phone number
     try {
-      const response = await axios.post('https://f340-2401-4900-1f3a-6dbf-ca43-b64b-f271-d485.ngrok-free.app/verify_otp', {
+      const response = await axios.post('https://sneakers-rough-frost-7777.fly.dev/verify_otp', {
         phone_number,
         otp_code: code
       });
@@ -182,7 +183,8 @@ const OnBoardScreen = ({ navigation }) => {
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
-            onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp} // Verify OTP if not verified
+            onPress={() => setProfilePopUp(true)}
+            // onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp} // Verify OTP if not verified
             // onPress={() => [
             //   setModalVisible(!modalVisible),
             //   setProfilePopUp(true),
@@ -193,7 +195,18 @@ const OnBoardScreen = ({ navigation }) => {
       </Modal>
       <Modal transparent={true} visible={profilePopUp}>
         <View style={styles.modalView}>
+          <View style={{textAlign:"center"}}>
           <Text style={{ color: Color.WHITE_COLOR }}>Create Profile</Text>
+          </View>
+          
+          <View style={{height:RFValue(120),width:"100%",backgroundColor:Color.BLACK_COLOR,flexDirection:"row",alignItems:"center",gap:RFValue(20)}}>
+            <TextInput style={{height:RFValue(90),width:RFValue(90),borderRadius:RFValue(50),borderColor:Color.WHITE_COLOR,borderWidth:RFValue(2)}}
+            />
+            <TouchableOpacity style={{borderWidth:RFValue(1),borderColor:Color.GREY_COLOR,width:RFValue(100),height:RFValue(25),justifyContent:"center",alignItems:"center"}}>
+              <Text style={{color:Color.WHITE_COLOR}}>Upload Photo</Text>
+            </TouchableOpacity>
+
+          </View>
           <CommonTextInput
             label={"First Name"}
             placeHolder={"First Name"}
@@ -201,22 +214,27 @@ const OnBoardScreen = ({ navigation }) => {
             onChangeText={setFirstName}
           />
           <CommonTextInput
-            label={"First Name"}
-            placeHolder={"First Name"}
-            value={firstName}
-            onChangeText={setFirstName}
+            label={"Last Name"}
+            placeHolder={"Last Name"}
+            value={lastName}
+            onChangeText={setLastName}
           />
           <CommonTextInput
-            label={"First Name"}
-            placeHolder={"First Name"}
-            value={firstName}
-            onChangeText={setFirstName}
+            label={"Email"}
+            placeHolder={"Email"}
+            value={email}
+            onChangeText={setEmail}
           />
           <CommonTextInput
-            label={"First Name"}
-            placeHolder={"First Name"}
-            value={firstName}
-            onChangeText={setFirstName}
+            label={"Phone Number"}
+            placeHolder={"Phone Number"}
+            value={phone}
+            onChangeText={setPhone}
+          />
+           <CommonButton
+            title={"SAVE"}
+            onPress={() => navigation.navigate("HomeScreen")} 
+            customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
         </View>
       </Modal>
