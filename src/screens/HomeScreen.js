@@ -38,7 +38,7 @@ const HomeScreen = () => {
           height: RFValue(45),
           marginHorizontal: RFValue(15),
           flexDirection: "row",
-          margin: RFValue(30)
+          margin: RFValue(18)
         }}
       >
         <View
