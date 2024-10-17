@@ -18,6 +18,7 @@ const HomeScreen = () => {
         <Text style={{fontSize:16, fontWeight:"bold"}}>{item.brandName}</Text>
         
         </View>
+        
         <View style={{width:"20%",justifyContent:"center"}}>
           <Text style={{fontSize:15, fontWeight:"bold"}}>Rs {item.price}</Text>
           <Text style={{color:"#1C1D21AD", fontSize:13, fontWeight:"bold"}}>{item.priceText}</Text>

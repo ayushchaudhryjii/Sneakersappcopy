@@ -34,7 +34,7 @@ const OnBoardScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
 
   const handleSend = async () => {
-    if(!!mobileNo){
+    if(!mobileNo){
       Alert.alert("Please fill the mobile number")
       return;
     }
@@ -220,8 +220,8 @@ const OnBoardScreen = ({ navigation }) => {
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
-            onPress={() => setProfilePopUp(true)}
-            // onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp} // Verify OTP if not verified
+            // onPress={() => setProfilePopUp(true)}
+            onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp} // Verify OTP if not verified
             // onPress={() => [
             //   setModalVisible(!modalVisible),
             //   setProfilePopUp(true),

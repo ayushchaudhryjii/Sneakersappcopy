@@ -20,22 +20,22 @@ const BottomNavigator = () => {
               : require('../images/home.png')       
           } else if (route.name === 'SneakPeakScreen') {
             iconSource = focused
-              ? require('../images/layout_tab.png')
+              ? require('../images/layout3.png')
               : require('../images/layout.png')
           } else if (route.name === 'PortfolioScreen') {
             iconSource = focused
-              ? require('../images/shoe_tab.png')
+              ? require('../images/shoe3.png')
               : require('../images/shoe.png')
           } else if (route.name === 'ProfileScreen') {
             iconSource = focused
-              ? require('../images/circle_tab.png')
+              ? require('../images/234.png')
               : require('../images/circle.png')
           }
 
           return (
             <Image
               source={iconSource}
-              style={{ width: 24, height: 24 }} 
+              style={{ width: 25, height: 25 }} 
             />
           );
         },
