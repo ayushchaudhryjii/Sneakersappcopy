@@ -61,18 +61,47 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.WHITE_COLOR }}>
+       <View
+        style={{
+          borderColor: Color.BLACK_COLOR,
+          borderWidth: 0.5,
+          backgroundColor: "#F6F6F6",
+          height: RFValue(45),
+          marginHorizontal: RFValue(15),
+          flexDirection: "row",
+          margin: RFValue(18)
+        }}
+      >
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            width: "15%",
+          }}
+        >
+          <Image
+            source={require("../images/search.png")}
+            style={{ height: RFValue(18), width: RFValue(18) }}
+          />
+        </View>
+        <View style={{ justifyContent: "center", width: "85%" }}>
+          <Text style={{ color: Color.BLACK_COLOR, fontSize: RFValue(15) }}>
+            Search by name, brand etc
+          </Text>
+        </View>
+      </View>
       <View
         style={{
           height: RFValue(45),
           marginHorizontal: RFValue(15),
           flexDirection: "row",
-          justifyContent: "space-between"
+          justifyContent:"space-between"
         }}
       >
-        <Text style={{ fontSize: RFValue(20), fontWeight: "600", color: Color.BLACK_COLOR }}>Market</Text>
-        <View style={{ borderColor: Color.BLACK_COLOR, borderWidth: 1, height: RFValue(30), width: RFValue(80), justifyContent: "center", alignItems: "center", borderRadius: RFValue(4) }}>
-          <Text style={{ color: Color.BLACK_COLOR, fontSize: RFValue(15), fontWeight: "bold" }}>
-            Filter (0)
+       <Text style={{fontSize:RFValue(20),fontWeight:"600",color:Color.BLACK_COLOR}}>Market</Text>
+        <View style={{borderColor:Color.BLACK_COLOR,borderWidth:1,height:RFValue(30),width:RFValue(80),justifyContent:"center",alignItems:"center",borderRadius:RFValue(4)}}>
+          <Text style={{ color: Color.BLACK_COLOR, fontSize: RFValue(15),fontWeight:"bold"}}>
+           Filter (0)
           </Text>
         </View>
       </View>
@@ -92,3 +121,4 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
