@@ -4,7 +4,7 @@ import Color from "../common/Color";
 import { RFValue } from "react-native-responsive-fontsize";
 import { fetchProductListAPI } from "../utils/ApiHandler";
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const [productData, setProductData] = useState([]);
 
   useEffect(() => {
@@ -16,12 +16,12 @@ const HomeScreen = () => {
       const response = await fetchProductListAPI(); 
       console.log(response, "API Response Data");
   
-      // if (response && Array.isArray(response.data)) {
+      if (response && Array.isArray(response.data)) {
         setProductData(response.data); 
         console.log('Product Data set successfully:',productData);
-      // } else {
-      //   console.log("API response does not contain an array", response);
-      // }
+      } else {
+        console.log("API response does not contain an array", response);
+      }
     } catch (error) {
       console.log("Error fetching product data:", error);
     }
@@ -31,7 +31,11 @@ const HomeScreen = () => {
   const renderList = ({ item, index }) => {
     console.log("Rendering item:", item);
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
+      onPress={()=>{
+        console.log(item.id)
+        navigation.navigate('ProductDetailScreen',{pass:item})
+      }}
         style={{
           marginHorizontal: RFValue(15), 
           borderBottomWidth: 0.5, 
