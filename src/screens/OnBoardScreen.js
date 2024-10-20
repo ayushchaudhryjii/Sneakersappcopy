@@ -38,9 +38,10 @@ const [snackbarMessage, setSnackbarMessage] = useState('');
   const dispatch = useDispatch();
   
   const handleSendOtp = async () => {
+let mobileno = `+91${mobileNo}`
     if (mobileNo && mobileNo.length === 10) {
       try {
-        const response = await dispatch(sendOtpRequest(mobileNo));
+        const response = await dispatch(sendOtpRequest(mobileno));
         console.log('OTP sent:', response); 
       } catch (error) {
         console.error("Error sending OTP:", error);
@@ -159,8 +160,11 @@ const [snackbarMessage, setSnackbarMessage] = useState('');
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
+            // onPress={
+            //   otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
+            // }
             onPress={
-              otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
+           navigation.navigate('HomeScreen')
             }
             customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
