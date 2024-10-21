@@ -16,8 +16,7 @@ import CommonTextInput from "../components/CommonTextInput";
 import * as ImagePicker from "expo-image-picker";
 import { useSelector, useDispatch } from "react-redux";
 import { sendOtpRequest, verifyOtpRequest } from "../redux/actions/authAction";
-import { Snackbar } from 'react-native-paper';
-
+import { Snackbar } from "react-native-paper";
 
 const OnBoardScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -32,33 +31,45 @@ const OnBoardScreen = ({ navigation }) => {
   const [error, setError] = useState("");
   const [imageUri, setImageUri] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-const [snackbarMessage, setSnackbarMessage] = useState('');
-
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const dispatch = useDispatch();
-  
+  const {
+
+    profileData,
+  } = useSelector((state) => state.auth || []);
+  console.log("profileData",profileData)
+
   const handleSendOtp = async () => {
-let mobileno = `+91${mobileNo}`
+    let mobileno = `+91${mobileNo}`;
     if (mobileNo && mobileNo.length === 10) {
       try {
         const response = await dispatch(sendOtpRequest(mobileno));
-        console.log('OTP sent:', response); 
+        console.log("response",response)
+        if(response.status===200){
+
+          alert(response.message)
+        }
+        // console.log("OTP sent:", response);
       } catch (error) {
         console.error("Error sending OTP:", error);
         alert("Failed to send OTP. Please try again.");
       }
     } else {
-      alert('Please enter a valid 10-digit mobile number.');
+      alert("Please enter a valid 10-digit mobile number.");
     }
   };
 
   const handleVerifyOtp = async () => {
     if (code.length > 0) {
       try {
-        const response = await dispatch(verifyOtpRequest(mobileNo, code));
-        if (response.success) {
+        let mobileno = `+91${mobileNo}`;
+        const response = await dispatch(verifyOtpRequest(mobileno, code));
+        console.log(response, "response verigyyyy");
+
+        if (response) {
           setOtpVerified(true);
-          setProfilePopUp(true); 
+          setProfilePopUp(true);
         } else {
           setError("OTP verification failed. Please try again.");
         }
@@ -73,8 +84,7 @@ let mobileno = `+91${mobileNo}`
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
     setSnackbarVisible(true);
-};
-
+  };
 
   // Gallery access function
   const pickImageAsync = async () => {
@@ -141,7 +151,10 @@ let mobileno = `+91${mobileNo}`
               keyboardType="numeric"
               placeholderTextColor={Color.WHITE_COLOR}
             />
-            <TouchableOpacity style={Style.sent_btn} onPress={()=>handleSendOtp()}>
+            <TouchableOpacity
+              style={Style.sent_btn}
+              onPress={() => handleSendOtp()}
+            >
               <Text style={Style.send_txt}>SEND</Text>
             </TouchableOpacity>
           </View>
@@ -160,12 +173,12 @@ let mobileno = `+91${mobileNo}`
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
-            // onPress={
-            //   otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
-            // }
             onPress={
-           navigation.navigate('HomeScreen')
+              otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
             }
+            //   onPress={
+            //  navigation.navigate('HomeScreen')
+            //   }
             customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
         </View>
