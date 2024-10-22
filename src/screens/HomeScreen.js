@@ -18,6 +18,7 @@ import Loader from "../components/Loader";
 const HomeScreen = ({ navigation }) => {
 
   const dispatch = useDispatch();
+  
   const {
     loading = false,
     products = [],
