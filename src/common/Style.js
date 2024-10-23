@@ -103,6 +103,11 @@ export default {
     width: RFValue(18),
     alignSelf: "flex-start",
   },
+  modal_back_img1: {
+    height: RFValue(30),
+    width: RFValue(30),
+    alignSelf: "flex-start",
+  },
   modalText: {
     fontSize: RFValue(18),
     fontWeight: "500",
