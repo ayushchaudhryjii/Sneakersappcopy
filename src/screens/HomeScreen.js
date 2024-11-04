@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,41 +6,44 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Modal,
+  TextInput,
 } from "react-native";
 import Color from "../common/Color";
 import { RFValue } from "react-native-responsive-fontsize";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchProductsRequest,
-} from "../redux/actions/authAction";
+import { fetchProductsRequest } from "../redux/actions/authAction";
 import Loader from "../components/Loader";
+import Style from "../common/Style";
+import StaticContent from "../common/StaticContent";
+import { fetchBrandsRequest } from "../redux/actions/brandAction";
 
 const HomeScreen = ({ navigation }) => {
+  const [filterModal, setFilterModal] = useState(false);
+  const [listModal, setListModal] = useState(false);
 
   const dispatch = useDispatch();
-  
+
   const {
     loading = false,
     products = [],
     error = null,
   } = useSelector((state) => state.products || []);
 
-  console.log(" loading, products, error", loading, products, error);
-
+  const brand = useSelector((state) => state.brand || []);
+  console.log("brand", brand.brand);
 
   useEffect(() => {
-    const data = dispatch(fetchProductsRequest()); 
-    console.log(data, "data");
+    dispatch(fetchProductsRequest());
+    const brands = dispatch(fetchBrandsRequest());
+    console.log(brands, "brands");
   }, [dispatch]);
 
   if (loading) {
-    return <Loader/>; 
-}
-
-
+    return <Loader />;
+  }
 
   const renderList = ({ item, index }) => {
-    console.log("Rendering item:", item);
     return (
       <TouchableOpacity
         onPress={() => {
@@ -97,9 +100,22 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const renderBrandList = ({ item, index }) => {
+    console.log("Brands item:", item);
+    return (
+      <View>
+        <Text
+          style={{ color: Color.WHITE_COLOR, fontSize: 14, fontWeight: "bold" }}
+        >
+          {item.attributes.name}
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.WHITE_COLOR }}>
-       <View
+      <View
         style={{
           borderColor: Color.BLACK_COLOR,
           borderWidth: 0.5,
@@ -107,7 +123,7 @@ const HomeScreen = ({ navigation }) => {
           height: RFValue(45),
           marginHorizontal: RFValue(15),
           flexDirection: "row",
-          margin: RFValue(18)
+          margin: RFValue(18),
         }}
       >
         <View
@@ -145,7 +161,7 @@ const HomeScreen = ({ navigation }) => {
         >
           Market
         </Text>
-        <View
+        <TouchableOpacity
           style={{
             borderColor: Color.BLACK_COLOR,
             borderWidth: 1,
@@ -155,6 +171,7 @@ const HomeScreen = ({ navigation }) => {
             alignItems: "center",
             borderRadius: RFValue(4),
           }}
+          onPress={() => setFilterModal(true)}
         >
           <Text
             style={{
@@ -165,21 +182,71 @@ const HomeScreen = ({ navigation }) => {
           >
             Filter (0)
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {products.data ? (
         <FlatList
-          data={products.data} 
+          data={products.data}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderList}
         />
       ) : (
         <Text>No products found</Text>
-      )} 
+      )}
+
+      <Modal transparent={true} visible={filterModal}>
+        <View style={Style.modalView}>
+          <TouchableOpacity onPress={() => setFilterModal(!filterModal)}>
+            <Image
+              style={Style.modal_back_img}
+              resizeMode="contain"
+              source={require("../images/back.png")}
+            />
+          </TouchableOpacity>
+          <Text style={Style.modalText}>Fliter</Text>
+          <TouchableOpacity
+            onPress={() => [setFilterModal(false), setListModal(true)]}
+          >
+            <Text style={Style.modalText}>Brand</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => [setFilterModal(false), setListModal(true)]}
+          >
+            <Text style={Style.modalText}>Size</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => [setFilterModal(false), setListModal(true)]}
+          >
+            <Text style={Style.modalText}>Rlease Year</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal transparent={true} visible={listModal}>
+        <View style={Style.modalView}>
+          <TouchableOpacity onPress={() => setListModal(!listModal)}>
+            <Image
+              style={Style.modal_back_img}
+              resizeMode="contain"
+              source={require("../images/back.png")}
+            />
+          </TouchableOpacity>
+          <Text style={Style.modalText}>Fliter</Text>
+
+          {brand.brand.data ? (
+            <FlatList
+              data={brand.brand.data}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderBrandList}
+            />
+          ) : (
+            <Text>No brand found</Text>
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 export default HomeScreen;
-

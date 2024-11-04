@@ -10,6 +10,7 @@ const CommonTextInput = ({label , value, onChangeText,placeHolder}) => {
       <TextInput style={{borderWidth:0.3,borderColor:Color.GREY_COLOR,paddingHorizontal:RFValue(10),height:RFValue(40)}}
       placeholder={placeHolder}
       onChangeText={onChangeText}
+      placeholderTextColor={Color.WHITE_COLOR}
       value={value}/>
     </View>
   )

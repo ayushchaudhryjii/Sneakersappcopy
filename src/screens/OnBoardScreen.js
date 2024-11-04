@@ -15,8 +15,9 @@ import CommonButton from "../components/CommonButton";
 import CommonTextInput from "../components/CommonTextInput";
 import * as ImagePicker from "expo-image-picker";
 import { useSelector, useDispatch } from "react-redux";
-import { sendOtpRequest, verifyOtpRequest } from "../redux/actions/authAction";
+import { sendOtpRequest, verifyOtpRequest,createProfileRequest  } from "../redux/actions/authAction";
 import { Snackbar } from "react-native-paper";
+import { SEND_OTP_SUCCESS, VERIFY_OTP_SUCCESS } from "../redux/ActionType";
 
 const OnBoardScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,53 +27,62 @@ const OnBoardScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
   const [error, setError] = useState("");
   const [imageUri, setImageUri] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [accessToken, setAccessToken] = useState(null); // Save token
+
 
   const dispatch = useDispatch();
-  const {
+  const otpData = useSelector((state) => state.auth?.otpData);
 
-    profileData,
-  } = useSelector((state) => state.auth || []);
-  console.log("profileData",profileData)
+  console.log("otpData",otpData)
+const access_token = useSelector((state) => state.auth?.accessToken);
+  
+  console.log("otpData",otpData,access_token)
+
 
   const handleSendOtp = async () => {
     let mobileno = `+91${mobileNo}`;
-    if (mobileNo && mobileNo.length === 10) {
+    if (mobileNo.length === 10) {
       try {
         const response = await dispatch(sendOtpRequest(mobileno));
-        console.log("response",response)
-        if(response.status===200){
-
-          alert(response.message)
+        console.log("response",response.payload)
+        if (response.type === SEND_OTP_SUCCESS) {
+          showSnackbar("OTP sent successfully.");
+          alert("OTP sent successfully.")
+        } else {
+          showSnackbar(response.payload || "Failed to send OTP.");
+          alert(response.payload || "Failed to send OTP.")
         }
-        // console.log("OTP sent:", response);
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("Failed to send OTP. Please try again.");
+        showSnackbar("Failed to send OTP. Please try again.");
       }
     } else {
-      alert("Please enter a valid 10-digit mobile number.");
+      showSnackbar("Please enter a valid 10-digit mobile number.");
     }
   };
+  
 
   const handleVerifyOtp = async () => {
     if (code.length > 0) {
       try {
         let mobileno = `+91${mobileNo}`;
-        const response = await dispatch(verifyOtpRequest(mobileno, code));
-        console.log(response, "response verigyyyy");
-
-        if (response) {
-          setOtpVerified(true);
-          setProfilePopUp(true);
-        } else {
-          setError("OTP verification failed. Please try again.");
-        }
+        const response = await dispatch(verifyOtpRequest(mobileno, code))
+        console.log("response",response);
+        setOtpVerified(true);
+        setProfilePopUp(true);
+//         if (response.type === VERIFY_OTP_SUCCESS) {
+//           setOtpVerified(true);
+//           setProfilePopUp(true);
+//           showSnackbar("OTP verified successfully.");
+// alert("OTP verified successfully.")
+//         } else {
+//           showSnackbar(response.payload || "OTP verification failed.");
+//         }
       } catch (error) {
         setError("Error verifying OTP. Please try again.");
       }
@@ -81,6 +91,32 @@ const OnBoardScreen = ({ navigation }) => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    const profileData = {
+        firstName,
+        lastName,
+        email,
+        mobileNo, // Mobile number can also be included
+        imageUri, // Image URI if you want to send the image
+    };
+
+    const token = access_token; // Assuming otpData9999 contains the token from the Redux state
+
+    try {
+        const response = await dispatch(createProfileRequest(profileData, token));
+        if (response) {
+            showSnackbar("Profile created successfully.");
+            alert("Profile created successfully.")
+            setProfilePopUp(false);
+            navigation.navigate("HomeScreen");
+        }
+    } catch (error) {
+        showSnackbar("Failed to create profile.");
+    }
+};
+
+  
+
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
     setSnackbarVisible(true);
@@ -88,14 +124,12 @@ const OnBoardScreen = ({ navigation }) => {
 
   // Gallery access function
   const pickImageAsync = async () => {
-    console.log("WORKING..........");
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      console.log("result", result);
       setImageUri(result.assets[0].uri);
     } else {
       alert("You did not select any image.");
@@ -126,6 +160,7 @@ const OnBoardScreen = ({ navigation }) => {
         />
       </View>
 
+      {/* OTP Modal */}
       <Modal transparent={true} visible={modalVisible}>
         <View style={Style.modalView}>
           <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
@@ -173,17 +208,13 @@ const OnBoardScreen = ({ navigation }) => {
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
-            onPress={
-              otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
-            }
-            //   onPress={
-            //  navigation.navigate('HomeScreen')
-            //   }
+            onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp}
             customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
         </View>
       </Modal>
 
+      {/* Profile Modal */}
       <Modal transparent={true} visible={profilePopUp}>
         <View style={Style.modalView}>
           <View style={{ textAlign: "center" }}>
@@ -232,20 +263,29 @@ const OnBoardScreen = ({ navigation }) => {
           <CommonTextInput
             label={"Phone Number"}
             placeHolder={"Phone Number"}
-            value={mobileNo} // Pre-filling mobile number from OTP
-            onChangeText={setPhone}
+            value={mobileNo} // Pre-filling mobile number
+            editable={false} // Disable editing
           />
           <CommonButton
             title={"SAVE"}
             onPress={() => [
               setProfilePopUp(false),
               setModalVisible(!modalVisible),
-              navigation.navigate("HomeScreen"),
+              handleSaveProfile(),
             ]}
             customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
         </View>
       </Modal>
+
+      {/* Snackbar for message display */}
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </SafeAreaView>
   );
 };
