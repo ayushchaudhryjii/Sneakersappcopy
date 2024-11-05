@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import Color from "../common/Color";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -15,39 +16,58 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchProductsRequest } from "../redux/actions/authAction";
 import Loader from "../components/Loader";
 import Style from "../common/Style";
-import StaticContent from "../common/StaticContent";
-import { fetchBrandsRequest } from "../redux/actions/brandAction";
+import {
+  fetchBrandsRequest,
+  fetchSizesRequest,
+  fetchReleaseYearsRequest,
+  searchProductRequest,
+} from "../redux/actions/filterAction";
 
 const HomeScreen = ({ navigation }) => {
   const [filterModal, setFilterModal] = useState(false);
   const [listModal, setListModal] = useState(false);
-
+  const [filterType, setFilterType] = useState(null);
+  const [query, setQuery] = useState("");
   const dispatch = useDispatch();
 
   const {
     loading = false,
     products = [],
     error = null,
-  } = useSelector((state) => state.products || []);
+  } = useSelector((state) => state.products || {});
 
-  const brand = useSelector((state) => state.brand || []);
-  console.log("brand", brand.brand);
+  const { brands, sizes, releaseYears, searchResults } = useSelector(
+    (state) => state.filter
+  );
+  console.log("searchResults", searchResults);
 
   useEffect(() => {
     dispatch(fetchProductsRequest());
-    const brands = dispatch(fetchBrandsRequest());
-    console.log(brands, "brands");
+    dispatch(fetchBrandsRequest());
+    dispatch(fetchSizesRequest());
+    dispatch(fetchReleaseYearsRequest());
   }, [dispatch]);
 
-  if (loading) {
-    return <Loader />;
-  }
+  const handleSearch = (text) => {
+    setQuery(text);
+    if (text.trim() === "") {
+      // If search input is empty, fetch the full product list
+      dispatch(fetchProductsRequest());
+    } else {
+      // Otherwise, perform search
+      dispatch(searchProductRequest(text));
+    }
+  };
+  
+  const openFilterModal = (type) => {
+    setFilterType(type);
+    setListModal(true);
+  };
 
-  const renderList = ({ item, index }) => {
+  const renderList = ({ item }) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          console.log(item.id);
           navigation.navigate("ProductDetailScreen", { pass: item });
         }}
         style={{
@@ -100,99 +120,61 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const renderBrandList = ({ item, index }) => {
-    console.log("Brands item:", item);
+  const renderFilterList = ({ item }) => {
     return (
-      <View>
-        <Text
-          style={{ color: Color.WHITE_COLOR, fontSize: 14, fontWeight: "bold" }}
-        >
-          {item.attributes.name}
+      <View style={Style.listItem}>
+        <Text style={Style.listText}>
+          {item.attributes?.name || item.attributes?.size_number}
         </Text>
+        <Image source={require("../images/back.png")} style={Style.arrowIcon} />
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Color.WHITE_COLOR }}>
-      <View
-        style={{
-          borderColor: Color.BLACK_COLOR,
-          borderWidth: 0.5,
-          backgroundColor: "#F6F6F6",
-          height: RFValue(45),
-          marginHorizontal: RFValue(15),
-          flexDirection: "row",
-          margin: RFValue(18),
-        }}
-      >
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            width: "15%",
-          }}
-        >
-          <Image
-            source={require("../images/search.png")}
-            style={{ height: RFValue(18), width: RFValue(18) }}
-          />
-        </View>
-        <View style={{ justifyContent: "center", width: "85%" }}>
-          <Text style={{ color: Color.BLACK_COLOR, fontSize: RFValue(15) }}>
-            Search by name, brand etc
-          </Text>
-        </View>
-      </View>
-      <View
-        style={{
-          height: RFValue(45),
-          marginHorizontal: RFValue(15),
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: RFValue(20),
-            fontWeight: "600",
-            color: Color.BLACK_COLOR,
-          }}
-        >
-          Market
-        </Text>
+    <SafeAreaView style={Style.contain}>
+      <View style={Style.home_header_viee}>
+        <Text style={Style.home_header_txt}>Market</Text>
         <TouchableOpacity
-          style={{
-            borderColor: Color.BLACK_COLOR,
-            borderWidth: 1,
-            height: RFValue(30),
-            width: RFValue(80),
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: RFValue(4),
-          }}
+          style={Style.filter_btn_view}
           onPress={() => setFilterModal(true)}
         >
-          <Text
-            style={{
-              color: Color.BLACK_COLOR,
-              fontSize: RFValue(15),
-              fontWeight: "bold",
-            }}
-          >
-            Filter (0)
-          </Text>
+          <Text style={Style.filter_btn_txt}>Filter (0)</Text>
         </TouchableOpacity>
       </View>
+      <View style={Style.search_icon_view}>
+        <View style={Style.iocn_view}>
+          <Image
+            source={require("../images/search.png")}
+            style={Style.seach_icon}
+          />
+        </View>
 
-      {products.data ? (
+        <TextInput
+          placeholder="Search products..."
+          value={query}
+          onChangeText={handleSearch} 
+          // onChangeText={(text) => setQuery(text)} 
+          onSubmitEditing={() => handleSearch(query)} 
+          style={{
+            width: "100%",
+          }}
+        />
+      </View>
+
+      {loading && <Loader />}
+
+      {error ? (
+        <Text style={{ color: "red" }}>{error}</Text>
+      ) : (
         <FlatList
-          data={products.data}
-          keyExtractor={(item, index) => index.toString()}
+        data={
+          searchResults?.data?.length > 0 ? searchResults.data : products.data
+        }
+          // data={searchResults.data}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderList}
         />
-      ) : (
-        <Text>No products found</Text>
       )}
 
       <Modal transparent={true} visible={filterModal}>
@@ -204,21 +186,36 @@ const HomeScreen = ({ navigation }) => {
               source={require("../images/back.png")}
             />
           </TouchableOpacity>
-          <Text style={Style.modalText}>Fliter</Text>
+          <Text style={Style.modalText}>Filter</Text>
           <TouchableOpacity
-            onPress={() => [setFilterModal(false), setListModal(true)]}
+            onPress={() => openFilterModal("Brand")}
+            style={Style.listItem}
           >
             <Text style={Style.modalText}>Brand</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => [setFilterModal(false), setListModal(true)]}
+            onPress={() => openFilterModal("Size")}
+            style={Style.listItem}
           >
             <Text style={Style.modalText}>Size</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => [setFilterModal(false), setListModal(true)]}
+            onPress={() => openFilterModal("Release Year")}
+            style={Style.listItem}
           >
-            <Text style={Style.modalText}>Rlease Year</Text>
+            <Text style={Style.modalText}>Release Year</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -232,17 +229,20 @@ const HomeScreen = ({ navigation }) => {
               source={require("../images/back.png")}
             />
           </TouchableOpacity>
-          <Text style={Style.modalText}>Fliter</Text>
-
-          {brand.brand.data ? (
-            <FlatList
-              data={brand.brand.data}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderBrandList}
-            />
-          ) : (
-            <Text>No brand found</Text>
-          )}
+          <Text style={Style.modalText}>{filterType}</Text>
+          <FlatList
+            data={
+              filterType === "Brand"
+                ? brands.data
+                : filterType === "Size"
+                ? sizes.data
+                : filterType === "Release Year"
+                ? releaseYears.data
+                : []
+            }
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderFilterList}
+          />
         </View>
       </Modal>
     </SafeAreaView>

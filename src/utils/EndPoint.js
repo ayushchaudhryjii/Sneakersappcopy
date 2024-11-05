@@ -6,4 +6,6 @@ export const PRODUCTS_LIST = "/products";
 export const CREATE_PROFILE = "/profile";
 export const GET_PROFILE = "/profiles";
 export const BRAND_LIST = "/brands";
+export const SIZE_LIST="/sizes"
+export const RLEASE_YEAR_LIST="/release_years"
 export const SEARCH_PRODUCT = "/search";
