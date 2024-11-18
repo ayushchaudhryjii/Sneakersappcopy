@@ -2,6 +2,8 @@ import { takeLatest, call, put } from "redux-saga/effects";
 import axios from "axios";
 import BASE_URL, {
   BRAND_LIST,
+  CREATE_PROFILE,
+  GET_PROFILE,
   PRODUCTS_LIST,
   RLEASE_YEAR_LIST,
   SEARCH_PRODUCT,
@@ -24,10 +26,19 @@ import {
   SEARCH_PRODUCT_REQUEST,
   FETCH_SIZES_REQUEST,
   FETCH_RELEASE_YEARS_REQUEST,
+  GET_PROFILE_REQUEST,
 } from "../ActionType";
 import {
   fetchProductsSuccess,
   fetchProductsFailure,
+  sendOtpSuccess,
+  sendOtpFailure,
+  verifyOtpSuccess,
+  verifyOtpFailure,
+  createProfileSuccess,
+  createProfileFailure,
+  getProfileSuccess,
+  getProfileFailure,
 } from "../actions/authAction";
 
 import {
@@ -49,11 +60,11 @@ function* sendOtpSaga(action) {
     const response = yield call(axios.post, BASE_URL + SEND_OTP, {
       phone_number,
     });
-    console.log("API Response:", response);
-    yield put({ type: SEND_OTP_SUCCESS, payload: response.data });
+    console.log("API Response: SENT OTP", response);
+    yield put(sendOtpSuccess(response.data));
   } catch (error) {
     console.error("Error in sendOtpSaga:", error.message);
-    yield put({ type: SEND_OTP_FAILURE, payload: error.message });
+    yield put(sendOtpFailure(error.message));
   }
 }
 
@@ -74,6 +85,63 @@ function* verifyOtpSaga(action) {
     });
   }
 }
+
+function* getProfileSaga(action) {
+  console.log("Fetching profile with token:", action.payload);
+  try {
+    const response = yield call(axios.get, BASE_URL + GET_PROFILE, {
+      headers: { Authorization: `${action.payload}` },
+    });
+    console.log("API Response: PROFILE FETCH", response.data);
+    yield put(getProfileSuccess(response.data));
+  } catch (error) {
+    console.error("Profile Fetch Error:", error);
+    yield put(getProfileFailure(error.message));
+  }
+}
+
+function* createProfileSaga(action) {
+  try {
+    const { profileData, token } = action.payload;
+    const profileData1 = new FormData();
+    profileData1.append("user[first_name]", profileData.firstName);
+    profileData1.append("user[last_name]", profileData.lastName);
+    profileData1.append("user[email]", profileData.email);
+
+    // Check if imageUri is a base64 string
+    if (profileData.imageUri.startsWith("data:image")) {
+      profileData1.append("user[image]", profileData.imageUri); // Sending as a base64 string directly
+    } else {
+      profileData1.append("user[image]", {
+        uri: profileData.imageUri,
+        name: 'profile.jpg', // Adjust the name as needed
+        type: 'image/jpeg',  // Adjust the type based on your image format
+      });
+    }
+
+    const response = yield call(
+      axios.post,
+      BASE_URL + CREATE_PROFILE,
+      profileData1,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("API CREATE PROFILE", response.data);
+    yield put(createProfileSuccess(response.data));
+  } catch (error) {
+    yield put(
+      createProfileFailure(
+        error.response ? error.response.data.message : error.message
+      )
+    );
+  }
+}
+
 
 function* fetchProductsSaga() {
   try {
@@ -101,6 +169,7 @@ function* searchProductSaga(action) {
     yield put(searchProductFailure(error.message));
   }
 }
+
 function* fetchBrandSaga() {
   try {
     const response = yield call(axios.get, BASE_URL + BRAND_LIST);
@@ -134,31 +203,10 @@ function* fetchReleaseYearsSaga() {
   }
 }
 
-function* createProfileSaga(action) {
-  try {
-    const { profileData, token } = action.payload;
-    const response = yield call(
-      axios.post,
-      BASE_URL + "/create-profile",
-      profileData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Sending token in the header
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    yield put({ type: CREATE_PROFILE_SUCCESS, payload: response.data });
-  } catch (error) {
-    yield put({
-      type: CREATE_PROFILE_FAILURE,
-      payload: error.response ? error.response.data.message : error.message,
-    });
-  }
-}
 export default function* authSaga() {
   yield takeLatest(SEND_OTP_REQUEST, sendOtpSaga);
   yield takeLatest(VERIFY_OTP_REQUEST, verifyOtpSaga);
+  yield takeLatest(GET_PROFILE_REQUEST, getProfileSaga);
   yield takeLatest(FETCH_PRODUCTS_REQUEST, fetchProductsSaga);
   yield takeLatest(FETCH_BRAND_REQUEST, fetchBrandSaga);
   yield takeLatest(FETCH_SIZES_REQUEST, fetchSizesSaga);

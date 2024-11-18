@@ -2,6 +2,11 @@ import Color from "./Color";
 import { RFValue } from "react-native-responsive-fontsize";
 
 export default {
+  common_container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   CONTAINER: {
     backgroundColor: Color.BLACK_COLOR,
     flex: 1,
@@ -21,6 +26,19 @@ export default {
     fontWeight: "bold",
     letterSpacing: 1,
   },
+  profile_img1:{
+    height: RFValue(90),
+    width: RFValue(90),
+    borderRadius: RFValue(50),
+    borderColor: Color.BLACK_COLOR,
+    borderWidth: RFValue(2),
+  },
+  modal_back_img2: {
+    height: RFValue(25),
+    width: RFValue(25),
+    alignSelf: "flex-start",
+    color:Color.TEXT_COLOR_PRODUCT,
+  },
   ONBOARDSCREEN_TEXT1: {
     color: Color.BLACK_COLOR,
     fontSize: 18,
@@ -29,22 +47,22 @@ export default {
   ONBOARDSCREEN_TEXT4: {
     color: Color.WHITE_COLOR,
     fontSize: RFValue(15),
-    marginTop:RFValue(18),
+    marginTop: RFValue(18),
     backgroundColor: Color.BLACK_COLOR,
     width: "100%",
     height: RFValue(45),
-    paddingLeft:RFValue(10),
+    paddingLeft: RFValue(10),
     borderWidth: 1,
     borderColor: Color.WHITE_COLOR,
   },
   ONBOARDSCREEN_TEXT5: {
     color: Color.WHITE_COLOR,
     fontSize: RFValue(15),
-    marginTop:RFValue(37),  
+    marginTop: RFValue(37),
     backgroundColor: Color.BLACK_COLOR,
     width: "70%",
     height: RFValue(40),
-    paddingLeft:RFValue(8),
+    paddingLeft: RFValue(8),
     borderWidth: 1,
     borderColor: Color.WHITE_COLOR,
   },
@@ -121,38 +139,37 @@ export default {
     textAlign: "center",
     color: Color.WHITE_COLOR,
   },
-  Number_TextField:{
-    flexDirection:'row',
-    gap : 2,
-
+  Number_TextField: {
+    flexDirection: "row",
+    gap: 2,
   },
-  commom_container:{ flex: 1, backgroundColor: Color.BLACK_COLOR },
-  first_view:{
+  commom_container: { flex: 1, backgroundColor: Color.BLACK_COLOR },
+  first_view: {
     backgroundColor: Color.WHITE_COLOR,
     flex: 1.8 / 3,
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
   },
-  second_view:{
+  second_view: {
     backgroundColor: Color.BLACK_COLOR,
     flex: 1.2 / 3,
     alignItems: "center",
   },
-  num_btn_view:{ flexDirection: "row", paddingTop: RFValue(25) },
-  num_btn_in_view:{
+  num_btn_view: { flexDirection: "row", paddingTop: RFValue(25) },
+  num_btn_in_view: {
     width: "20%",
     height: RFValue(45),
     backgroundColor: Color.GREY_COLOR,
     justifyContent: "center",
     alignItems: "center",
   },
-  code_txt:{
+  code_txt: {
     color: Color.BLACK_COLOR,
     fontSize: RFValue(15),
     fontWeight: "600",
   },
-  phnnum_input:{
+  phnnum_input: {
     width: "58%",
     height: RFValue(45),
     borderColor: Color.GREY_COLOR,
@@ -166,7 +183,7 @@ export default {
     borderWidth: 1,
     borderColor: Color.WHITE_COLOR,
   },
-  sent_btn:{
+  sent_btn: {
     width: "20%",
     height: RFValue(45),
     backgroundColor: Color.BUTTON_COLOR,
@@ -175,13 +192,13 @@ export default {
     alignItems: "center",
     borderRadius: 4,
   },
-  send_txt:{
+  send_txt: {
     color: Color.BLACK_COLOR,
     fontSize: RFValue(15),
     fontWeight: "600",
   },
-  error_txt:{ color: "red", fontSize: RFValue(15) },
-  profile_view:{
+  error_txt: { color: "red", fontSize: RFValue(15) },
+  profile_view: {
     height: RFValue(120),
     width: "100%",
     backgroundColor: Color.BLACK_COLOR,
@@ -189,114 +206,125 @@ export default {
     alignItems: "center",
     gap: RFValue(20),
   },
-profile_img:{
-  height: RFValue(90),
-  width: RFValue(90),
-  borderRadius: RFValue(50),
-  borderColor: Color.WHITE_COLOR,
-  borderWidth: RFValue(2),
-},
-upload_btn:{
-  borderWidth: RFValue(1),
-  borderColor: Color.GREY_COLOR,
-  width: RFValue(100),
-  height: RFValue(25),
-  justifyContent: "center",
-  alignItems: "center",
-},
-upload_btn_txt:{ color: Color.WHITE_COLOR },
-modalView: {
-  marginTop: 100,
-  backgroundColor: "black",
-  borderRadius: 20,
-  padding: 35,
-  width: "auto",
-  height: 710,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 2,
+  profile_img: {
+    height: RFValue(90),
+    width: RFValue(90),
+    borderRadius: RFValue(50),
+    borderColor: Color.WHITE_COLOR,
+    borderWidth: RFValue(2),
   },
-  shadowOpacity: 0.25,
-  shadowRadius: 4,
-  elevation: 5,
-},
-button: {
-  borderRadius: 20,
-  padding: 10,
-  elevation: 2,
-},
-buttonOpen: {
-  backgroundColor: "#F194FF",
-},
-buttonClose: {
-  backgroundColor: "#2196F3",
-},
-textStyle: {
-  color: "white",
-  fontWeight: "bold",
-  textAlign: "center",
-},
+  upload_btn: {
+    borderWidth: RFValue(1),
+    borderColor: Color.GREY_COLOR,
+    width: RFValue(100),
+    height: RFValue(25),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  upload_btn_txt: { color: Color.WHITE_COLOR },
+  modalView: {
+    marginTop: 100,
+    backgroundColor: "black",
+    borderRadius: 20,
+    padding: 35,
+    width: "auto",
+    height: 710,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 
-listItem: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  paddingVertical: RFValue(15),
-  paddingHorizontal: RFValue(15),
-  borderBottomWidth: 0.5,
-  borderBottomColor: Color.WHITE_COLOR,
-},
-listText: {
-  color: Color.WHITE_COLOR,
-  fontSize: 16,
-  fontWeight: "bold",
-},
-arrowIcon: {
-  width: RFValue(12),
-  height: RFValue(12),
-  tintColor: Color.WHITE_COLOR, 
-},
-contain:{ flex: 1, backgroundColor: Color.WHITE_COLOR },
-home_header_viee:{
-  height: RFValue(45),
-  marginHorizontal: RFValue(15),
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginTop: RFValue(10),
-},
-home_header_txt:{
-  fontSize: RFValue(20),
-  fontWeight: "600",
-  color: Color.BLACK_COLOR,
-},
-filter_btn_view:{
-  borderColor: Color.BLACK_COLOR,
-  borderWidth: 1,
-  height: RFValue(30),
-  width: RFValue(80),
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: RFValue(4),
-},
-filter_btn_txt:{
-  color: Color.BLACK_COLOR,
-  fontSize: RFValue(15),
-  fontWeight: "bold",
-},
-search_icon_view:{
-  borderColor: Color.BLACK_COLOR,
-  borderWidth: 0.5,
-  backgroundColor: "#F6F6F6",
-  height: RFValue(45),
-  marginHorizontal: RFValue(15),
-  flexDirection: "row",
-  margin: RFValue(18),
-},
-iocn_view:{
-  justifyContent: "center",
-  alignItems: "center",
-  width: "15%",
-},
-seach_icon:{ height: RFValue(18), width: RFValue(18) },
+  listItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: RFValue(15),
+    paddingHorizontal: RFValue(15),
+    borderBottomWidth: 0.5,
+    borderBottomColor: Color.WHITE_COLOR,
+  },
+  listText: {
+    color: Color.WHITE_COLOR,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  arrowIcon: {
+    width: RFValue(12),
+    height: RFValue(12),
+    tintColor: Color.WHITE_COLOR,
+  },
+  contain: { flex: 1, backgroundColor: Color.WHITE_COLOR },
+  home_header_viee: {
+    height: RFValue(45),
+    marginHorizontal: RFValue(15),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: RFValue(10),
+  },
+  home_header_txt: {
+    fontSize: RFValue(20),
+    fontWeight: "600",
+    color: Color.BLACK_COLOR,
+  },
+  filter_btn_view: {
+    borderColor: Color.BLACK_COLOR,
+    borderWidth: 1,
+    height: RFValue(30),
+    width: RFValue(80),
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: RFValue(4),
+  },
+  filter_btn_txt: {
+    color: Color.BLACK_COLOR,
+    fontSize: RFValue(15),
+    fontWeight: "bold",
+  },
+  search_icon_view: {
+    borderColor: Color.BLACK_COLOR,
+    borderWidth: 0.5,
+    backgroundColor: "#F6F6F6",
+    height: RFValue(45),
+    marginHorizontal: RFValue(15),
+    flexDirection: "row",
+    margin: RFValue(18),
+  },
+  iocn_view: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "15%",
+  },
+  seach_icon: { height: RFValue(18), width: RFValue(18) },
+  loader: {
+    position: "relative",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // optional: adds a semi-transparent overlay
+    zIndex: 1,
+  },
 };

@@ -41,6 +41,11 @@ const BottomNavigator = () => {
         },
         tabBarActiveTintColor: 'black',  
         tabBarInactiveTintColor: 'gray',  
+        headerTitleAlign: 'center',      // Center the title
+        headerTintColor: 'white',        // Set title color to white
+        headerStyle: {
+          backgroundColor: 'black',      // Set background color to black
+        },
       })}
     >
 

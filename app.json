@@ -24,6 +24,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme":"HypeApp",
     "extra": {
       "eas": {
         "projectId": "7acf64d5-de15-4cdc-bc31-ec2c24137a5a"

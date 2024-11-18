@@ -6,21 +6,38 @@ import {
   Modal,
   TextInput,
   Image,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Color from "../common/Color";
 import StaticContent from "../common/StaticContent";
 import Style from "../common/Style";
 import CommonButton from "../components/CommonButton";
 import CommonTextInput from "../components/CommonTextInput";
 import * as ImagePicker from "expo-image-picker";
-import { useSelector, useDispatch } from "react-redux";
-import { sendOtpRequest, verifyOtpRequest,createProfileRequest  } from "../redux/actions/authAction";
 import { Snackbar } from "react-native-paper";
-import { SEND_OTP_SUCCESS, VERIFY_OTP_SUCCESS } from "../redux/ActionType";
+import {
+  sendOtpAPI,
+  verifyOtpAPI,
+  createProfileAPI,
+} from "../utils/ApiHandler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+
+WebBrowser.maybeCompleteAuthSession();
+// const redirectUri = WebBrowser.makeRedirectUri();
+const redirectUri = AuthSession.makeRedirectUri({
+  useProxy: true,
+});
+
+console.log(redirectUri);
+console.log(WebBrowser); // Check if the method exists
 
 const OnBoardScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [mobileNo, setMobileNo] = useState("");
   const [profilePopUp, setProfilePopUp] = useState(false);
@@ -32,90 +49,145 @@ const OnBoardScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [accessToken, setAccessToken] = useState(null); // Save token
+  const [access_token, setAccess_token] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
 
+  // const [request, response, promptAsync] = Google.useAuthRequest({
+  //   androidClientId:
+  //     "341353636251-9rs418oaa3kju31kj7p2b37rei9jc6d4.apps.googleusercontent.com",
+  //   webClientId:
+  //     "771816981075-cpudtrj0p7n5r50vfbsr64nd3raih6dv.apps.googleusercontent.com",
+  //   redirectUri: AuthSession.makeRedirectUri({
+  //     useProxy: true,
+  //   }),
+  // });
 
-  const dispatch = useDispatch();
-  const otpData = useSelector((state) => state.auth?.otpData);
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId:
+      "341353636251-9rs418oaa3kju31kj7p2b37rei9jc6d4.apps.googleusercontent.com",
+    webClientId:
+      "771816981075-cpudtrj0p7n5r50vfbsr64nd3raih6dv.apps.googleusercontent.com",
+    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+  });
 
-  console.log("otpData",otpData)
-const access_token = useSelector((state) => state.auth?.accessToken);
-  
-  console.log("otpData",otpData,access_token)
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      const { accessToken } = authentication;
+      getUserInfo(accessToken);
+    }
+  }, [response]);
 
-
-  const handleSendOtp = async () => {
-    let mobileno = `+91${mobileNo}`;
-    if (mobileNo.length === 10) {
-      try {
-        const response = await dispatch(sendOtpRequest(mobileno));
-        console.log("response",response.payload)
-        if (response.type === SEND_OTP_SUCCESS) {
-          showSnackbar("OTP sent successfully.");
-          alert("OTP sent successfully.")
-        } else {
-          showSnackbar(response.payload || "Failed to send OTP.");
-          alert(response.payload || "Failed to send OTP.")
+  const getUserInfo = async (token) => {
+    try {
+      const response = await fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
-      } catch (error) {
-        console.error("Error sending OTP:", error);
-        showSnackbar("Failed to send OTP. Please try again.");
-      }
-    } else {
-      showSnackbar("Please enter a valid 10-digit mobile number.");
+      );
+      const user = await response.json();
+      setUserInfo(user);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
     }
   };
-  
+  const handleSendOtp = async () => {
+    if (!mobileNo) {
+      alert("Please enter your mobile number.");
+      showSnackbar("Please enter your mobile number.");
+      return;
+    }
+    if (mobileNo.length !== 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      showSnackbar("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await sendOtpAPI(`+91${mobileNo}`);
+      if (response?.status === 200) {
+        alert("OTP sent successfully.");
+        showSnackbar("OTP sent successfully.");
+      } else {
+        alert("Failed to send OTP.");
+        showSnackbar("Failed to send OTP.");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      showSnackbar("Failed to send OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleVerifyOtp = async () => {
-    if (code.length > 0) {
-      try {
-        let mobileno = `+91${mobileNo}`;
-        const response = await dispatch(verifyOtpRequest(mobileno, code))
-        console.log("response",response);
-        setOtpVerified(true);
+    setLoading(true);
+    if (code.trim().length === 0) {
+      showSnackbar("Please enter the OTP.");
+      setLoading(false);
+      return;
+    }
+
+    const mobileno = `+91${mobileNo}`;
+    try {
+      const response = await verifyOtpAPI(mobileno, code);
+      console.log("handleVerifyOtpDAATATA", response.data.token);
+      if (response?.status === 200) {
+        alert("OTP verified successfully.");
+        setAccess_token(response.data.token);
+        await AsyncStorage.setItem("authToken", response.data.token);
+        showSnackbar("OTP verified successfully.");
+        setLoading(false);
         setProfilePopUp(true);
-//         if (response.type === VERIFY_OTP_SUCCESS) {
-//           setOtpVerified(true);
-//           setProfilePopUp(true);
-//           showSnackbar("OTP verified successfully.");
-// alert("OTP verified successfully.")
-//         } else {
-//           showSnackbar(response.payload || "OTP verification failed.");
-//         }
-      } catch (error) {
-        setError("Error verifying OTP. Please try again.");
+      } else {
+        setLoading(false);
+        alert("Failed to verify OTP.");
+        showSnackbar("Failed to verify OTP.");
       }
-    } else {
-      setError("Please enter the OTP.");
+    } catch (error) {
+      setLoading(false);
+      console.error("Error verifying OTP:", error);
+      showSnackbar("Error verifying OTP. Please try again.");
     }
   };
 
   const handleSaveProfile = async () => {
-    const profileData = {
-        firstName,
-        lastName,
-        email,
-        mobileNo, // Mobile number can also be included
-        imageUri, // Image URI if you want to send the image
-    };
-
-    const token = access_token; // Assuming otpData9999 contains the token from the Redux state
-
-    try {
-        const response = await dispatch(createProfileRequest(profileData, token));
-        if (response) {
-            showSnackbar("Profile created successfully.");
-            alert("Profile created successfully.")
-            setProfilePopUp(false);
-            navigation.navigate("HomeScreen");
-        }
-    } catch (error) {
-        showSnackbar("Failed to create profile.");
+    if (!firstName || !lastName || !email || !imageUri) {
+      alert("Please fill out all required fields.");
+      showSnackbar("Please fill out all required fields.");
+      return;
     }
-};
 
-  
+    const profileData = {
+      firstName,
+      lastName,
+      email,
+      mobileNo,
+      imageUri,
+    };
+    let accessToken = await AsyncStorage.getItem("authToken");
+    console.log("access_token", access_token);
+    try {
+      const response = await createProfileAPI(profileData, access_token);
+      if (response?.status === 200) {
+        alert("Profile created successfully.");
+        showSnackbar("Profile created successfully.");
+        setProfilePopUp(false);
+        setModalVisible(false);
+        navigation.navigate("HomeScreen");
+      } else {
+        alert("Failed to create profile.");
+        showSnackbar("Failed to create profile.");
+      }
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      showSnackbar("Failed to create profile.");
+    }
+  };
 
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -138,6 +210,7 @@ const access_token = useSelector((state) => state.auth?.accessToken);
 
   return (
     <SafeAreaView style={Style.commom_container}>
+      {JSON.stringify(userInfo) && <Text>{JSON.stringify(userInfo)}</Text>}
       <View style={Style.first_view}>
         <Text style={Style.ONBOARDSCREEN_TEXT0}>
           {StaticContent.SPLASH_TEXT}
@@ -151,12 +224,14 @@ const access_token = useSelector((state) => state.auth?.accessToken);
         <CommonButton
           title={StaticContent.ONBOARDSCREEN_TEXTFIELD1_TEXT}
           onPress={() => setModalVisible(true)}
+          // onPress={() => setProfilePopUp(true)}
         />
         <CommonButton
           title={StaticContent.ONBOARDSCREEN_TEXTFIELD2_TEXT}
           customStyle={Style.ONBOARDSCREEN_TEXTFIELD2}
           textStyle={Style.ONBOARDSCREEN_TEXT1}
           onPress={() => navigation.navigate("HomeScreen")}
+          // onPress={() => promptAsync()}
         />
       </View>
 
@@ -204,11 +279,13 @@ const access_token = useSelector((state) => state.auth?.accessToken);
               placeholderTextColor={Color.WHITE_COLOR}
             />
           </View>
-          {error ? <Text style={Style.error_txt}>{error}</Text> : null}
+          {/* {error ? <Text style={Style.error_txt}>{error}</Text> : null} */}
 
           <CommonButton
             title={StaticContent.MODAL_TEXT3}
-            onPress={otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp}
+            onPress={
+              otpVerified ? () => setProfilePopUp(true) : handleVerifyOtp
+            }
             customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
           />
         </View>
@@ -263,8 +340,8 @@ const access_token = useSelector((state) => state.auth?.accessToken);
           <CommonTextInput
             label={"Phone Number"}
             placeHolder={"Phone Number"}
-            value={mobileNo} // Pre-filling mobile number
-            editable={false} // Disable editing
+            value={mobileNo}
+            editable={false}
           />
           <CommonButton
             title={"SAVE"}
@@ -286,6 +363,20 @@ const access_token = useSelector((state) => state.auth?.accessToken);
       >
         {snackbarMessage}
       </Snackbar>
+      {/* Loader */}
+      {loading && (
+        <View style={Style.loader}>
+          <ActivityIndicator size="large" color={Color.THEME_COLOR} />
+        </View>
+      )}
+
+      {loading && (
+        <ActivityIndicator
+          size="large"
+          color={Color.WHITE_COLOR}
+          style={Style.loader}
+        />
+      )}
     </SafeAreaView>
   );
 };

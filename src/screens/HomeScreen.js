@@ -8,61 +8,133 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  ActivityIndicator,
 } from "react-native";
 import Color from "../common/Color";
 import { RFValue } from "react-native-responsive-fontsize";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchProductsRequest } from "../redux/actions/authAction";
 import Loader from "../components/Loader";
 import Style from "../common/Style";
+
 import {
-  fetchBrandsRequest,
-  fetchSizesRequest,
-  fetchReleaseYearsRequest,
-  searchProductRequest,
-} from "../redux/actions/filterAction";
+  fetchBrandListAPI,
+  fetchSizeListAPI,
+  fetchReleaseYearListAPI,
+  searchProductAPI,
+} from "../utils/ApiHandler";
 
 const HomeScreen = ({ navigation }) => {
   const [filterModal, setFilterModal] = useState(false);
   const [listModal, setListModal] = useState(false);
   const [filterType, setFilterType] = useState(null);
   const [query, setQuery] = useState("");
-  const dispatch = useDispatch();
+  const [searchResults, setSearchResults] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [releaseYears, setReleaseYears] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedReleaseYear, setSelectedReleaseYear] = useState("");
 
-  const {
-    loading = false,
-    products = [],
-    error = null,
-  } = useSelector((state) => state.products || {});
-
-  const { brands, sizes, releaseYears, searchResults } = useSelector(
-    (state) => state.filter
-  );
-  console.log("searchResults", searchResults);
+  // Fetching initial data
+  useEffect(() => {
+    handleSearch();
+    fetchInitialData();
+  }, []);
 
   useEffect(() => {
-    dispatch(fetchProductsRequest());
-    dispatch(fetchBrandsRequest());
-    dispatch(fetchSizesRequest());
-    dispatch(fetchReleaseYearsRequest());
-  }, [dispatch]);
+    handleSearch();
+  }, [selectedBrand, selectedSize, selectedReleaseYear]);
 
-  const handleSearch = (text) => {
-    setQuery(text);
-    if (text.trim() === "") {
-      // If search input is empty, fetch the full product list
-      dispatch(fetchProductsRequest());
-    } else {
-      // Otherwise, perform search
-      dispatch(searchProductRequest(text));
+  const fetchInitialData = async () => {
+    setLoading(true);
+    try {
+      const brandData = await fetchBrandListAPI();
+      setBrands(brandData?.data || []);
+      const sizeData = await fetchSizeListAPI();
+      setSizes(sizeData?.data || []);
+      const yearData = await fetchReleaseYearListAPI();
+      setReleaseYears(yearData?.data || []);
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
+  // const handleSearch = async () => {
+  //   console.log("WORKINHHHHH")
+  //   setLoading(true);
+  //   try {
+  //     const searchData = await searchProductAPI(query);
+  //     console.log("searchData",searchData)
+  //     setSearchResults(searchData?.data.data || []);
+  //   } catch (error) {
+  //     console.error("Error searching products:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const handleSearch = async () => {
+    console.log("Searching with filters:", {
+      query,
+      selectedBrand,
+      selectedSize,
+      selectedReleaseYear,
+    });
+    setLoading(true);
+    try {
+      const searchData = await searchProductAPI({
+        query: query,
+        brand: selectedBrand || "",
+        size: selectedSize || "",
+        release_year: selectedReleaseYear || "",
+      });
+      console.log("searchData:", searchData.data);
+      setSearchResults(searchData?.data?.data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFilter = (type, value) => {
+    if (type === "Brand") {
+      setSelectedBrand(value);
+      setSelectedSize("");
+      setSelectedReleaseYear("");
+    } else if (type === "Size") {
+      setSelectedSize(value);
+      setSelectedBrand("");
+      setSelectedReleaseYear("");
+    } else if (type === "Release Year") {
+      setSelectedReleaseYear(value);
+      setSelectedBrand("");
+      setSelectedSize("");
+    }
+
+    setFilterModal(false);
+    setListModal(false);
+
+    // Trigger search after applying the filter
+    handleSearch();
+  };
+
+  const closeModal = () => {
+    setFilterModal(false);
+    setListModal(false);
+  };
+
   const openFilterModal = (type) => {
     setFilterType(type);
     setListModal(true);
   };
+
+  const appliedFilters = [
+    selectedBrand,
+    selectedSize,
+    selectedReleaseYear,
+  ].filter(Boolean).length;
 
   const renderList = ({ item }) => {
     return (
@@ -121,13 +193,20 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderFilterList = ({ item }) => {
+    const displayText =
+      filterType === "Size"
+        ? item.attributes.size_number
+        : item.attributes.name;
     return (
-      <View style={Style.listItem}>
-        <Text style={Style.listText}>
-          {item.attributes?.name || item.attributes?.size_number}
-        </Text>
-        <Image source={require("../images/back.png")} style={Style.arrowIcon} />
-      </View>
+      <TouchableOpacity onPress={() => applyFilter(filterType, displayText)}>
+        <View style={Style.listItem}>
+          <Text style={Style.listText}>{displayText}</Text>
+          <Image
+            source={require("../images/back.png")}
+            style={Style.arrowIcon}
+          />
+        </View>
+      </TouchableOpacity>
     );
   };
 
@@ -139,7 +218,8 @@ const HomeScreen = ({ navigation }) => {
           style={Style.filter_btn_view}
           onPress={() => setFilterModal(true)}
         >
-          <Text style={Style.filter_btn_txt}>Filter (0)</Text>
+          {/* <Text style={Style.filter_btn_txt}>Filter (0)</Text> */}
+          <Text style={Style.filter_btn_txt}>Filter ({appliedFilters})</Text>
         </TouchableOpacity>
       </View>
       <View style={Style.search_icon_view}>
@@ -153,30 +233,30 @@ const HomeScreen = ({ navigation }) => {
         <TextInput
           placeholder="Search products..."
           value={query}
-          onChangeText={handleSearch} 
-          // onChangeText={(text) => setQuery(text)} 
-          onSubmitEditing={() => handleSearch(query)} 
-          style={{
-            width: "100%",
+          onChangeText={(text) => {
+            setQuery(text);
+            if (text === "") {
+              handleSearch();
+            }
           }}
+          onSubmitEditing={() => handleSearch()}
+          style={{ width: "100%", height: RFValue(45) }}
         />
       </View>
 
       {loading && <Loader />}
-
-      {error ? (
-        <Text style={{ color: "red" }}>{error}</Text>
-      ) : (
+      {searchResults.length > 0 ? (
         <FlatList
-        data={
-          searchResults?.data?.length > 0 ? searchResults.data : products.data
-        }
-          // data={searchResults.data}
+          data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderList}
         />
+      ) : (
+        <View style={Style.common_container}>
+          <Text style={Style.ONBOARDSCREEN_TEXT1}>Data not found</Text>
+        </View>
       )}
-
+      {/* 
       <Modal transparent={true} visible={filterModal}>
         <View style={Style.modalView}>
           <TouchableOpacity onPress={() => setFilterModal(!filterModal)}>
@@ -217,6 +297,79 @@ const HomeScreen = ({ navigation }) => {
               style={Style.arrowIcon}
             />
           </TouchableOpacity>
+        </View>
+      </Modal> */}
+      <Modal transparent={true} visible={filterModal}>
+        <View style={Style.modalView}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity onPress={() => setFilterModal(!filterModal)}>
+              <Image
+                style={Style.modal_back_img}
+                resizeMode="contain"
+                source={require("../images/back.png")}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedBrand("");
+                setSelectedSize("");
+                setSelectedReleaseYear("");
+                setFilterModal(false);
+                handleSearch();
+              }}
+              style={[{ backgroundColor: Color.WHITE_COLOR }]}
+            >
+              <Text style={[Style.code_txt, { padding: 3 }]}>
+                Reset Filters
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={Style.modalText}>Filter</Text>
+
+          {/* Brand Filter */}
+          <TouchableOpacity
+            onPress={() => openFilterModal("Brand")}
+            style={Style.listItem}
+          >
+            <Text style={Style.modalText}>Brand</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
+          </TouchableOpacity>
+
+          {/* Size Filter */}
+          <TouchableOpacity
+            onPress={() => openFilterModal("Size")}
+            style={Style.listItem}
+          >
+            <Text style={Style.modalText}>Size</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
+          </TouchableOpacity>
+
+          {/* Release Year Filter */}
+          <TouchableOpacity
+            onPress={() => openFilterModal("Release Year")}
+            style={Style.listItem}
+          >
+            <Text style={Style.modalText}>Release Year</Text>
+            <Image
+              source={require("../images/back.png")}
+              style={Style.arrowIcon}
+            />
+          </TouchableOpacity>
+
+          {/* Reset Filters Button */}
         </View>
       </Modal>
 
