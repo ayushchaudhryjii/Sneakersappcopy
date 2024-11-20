@@ -79,7 +79,7 @@ const ProfileScreen = ({ navigation }) => {
         <View>
           <Image
             source={{ uri: profile.attributes.image.url }} // Load image from the URL
-            style={[Style.profile_img1, { tintColor: Color.BLACK_COLOR }]}
+            style={[Style.profile_img1]}
           />
         </View>
         <View style={{ gap: RFValue(3), justifyContent: "center" }}>
@@ -204,6 +204,7 @@ const ProfileScreen = ({ navigation }) => {
             borderTopWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          onPress={() => navigation.navigate("Buying")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text

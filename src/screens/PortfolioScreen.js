@@ -70,7 +70,7 @@ const PortfolioScreen = ({ navigation }) => {
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "row",
-            gap: RFValue(10)
+            gap: RFValue(5)
           }}
           onPress={() => navigation.navigate("HomeScreen")}
         >

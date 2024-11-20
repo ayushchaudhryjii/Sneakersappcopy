@@ -6,6 +6,7 @@ import OnBoardScreen from "../screens/OnBoardScreen";
 import BottomNavigator from "./BottomNavigator";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import WishListScreen from "../screens/WishListScreen";
+import Buying from "../screens/Buying";
 // import WishlistScreen from "../screens/WishlistScreen";
 
 const AppNavigator = () => {
@@ -36,6 +37,10 @@ const AppNavigator = () => {
         <Stack.Screen
           name="WishListScreen"
           component={WishListScreen}
+        />
+        <Stack.Screen
+          name="Buying"
+          component={Buying}
         />
       </Stack.Navigator>
     </NavigationContainer>

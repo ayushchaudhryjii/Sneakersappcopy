@@ -153,6 +153,7 @@ const OnBoardScreen = ({ navigation }) => {
     } catch (error) {
       setLoading(false);
       console.error("Error verifying OTP:", error);
+      alert("Plz Enter a Valid OTP.");
       showSnackbar("Error verifying OTP. Please try again.");
     }
   };
@@ -346,7 +347,7 @@ const OnBoardScreen = ({ navigation }) => {
               source={imageUri ? { uri: imageUri } : require('../images/user.png')}
               style={[
                 Style.profile_img,
-                { tintColor: !imageUri && Color.WHITE_COLOR },
+                // { tintColor: !imageUri && Color.WHITE_COLOR },
               ]}
             />
           </View>
