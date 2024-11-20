@@ -207,8 +207,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
       </View>
 
       <View>
-        <TouchableOpacity onPress={handleBuyNow}>
-          <Text>Buy Now</Text>
+        <TouchableOpacity onPress={handleBuyNow}
+        style={{marginLeft:RFValue(20),marginBottom:RFValue(20),borderColor:Color.BLACK_COLOR,borderWidth:RFValue(1),height:RFValue(30),width:"30%",borderRadius:RFValue(5),backgroundColor:Color.BUTTON_COLOR,justifyContent:"center",alignItems:"center"}}>
+          <Text style={{fontSize:RFValue(15),fontWeight:"500"}}>Buy Now</Text>
         </TouchableOpacity>
       </View>
 

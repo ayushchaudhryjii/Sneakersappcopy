@@ -8,6 +8,11 @@ import { usePortfolio } from './PorfolioContext';
 const PortfolioScreen = ({ navigation }) => {
   const { portfolioItems } = usePortfolio(); // Access portfolioItems from context
 
+  const totalValue = portfolioItems.reduce(
+    (sum, item) => sum + (item.attributes.mrp || 0),
+    0
+  );
+
   const renderPortfolioItem = ({ item }) => (
     <View
       style={{
@@ -42,7 +47,7 @@ const PortfolioScreen = ({ navigation }) => {
       </View>
       <View style={{ width: "25%", justifyContent: "center" }}>
         <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-          Rs {item.attributes.lowest_bid}
+          Rs {item.attributes.mrp}
         </Text>
         <Text style={{ color: "#1C1D21AD", fontSize: 13, fontWeight: "bold" }}>
           Lowest
@@ -53,9 +58,9 @@ const PortfolioScreen = ({ navigation }) => {
 
   return (
     <View>
-      <View style={{ height: "50%", width: "100%", backgroundColor: Color.BLACK_COLOR, justifyContent: "center", alignItems: "center", gap: RFValue(20) }}>
+      <View style={{ height: "45%", width: "100%", backgroundColor: Color.BLACK_COLOR, justifyContent: "center", alignItems: "center", gap: RFValue(20) }}>
         <Text style={{ color: Color.PORTFOLIO_COLOR, fontSize: RFValue(20), fontWeight: "500" }}>Total value</Text>
-        <Text style={{ color: Color.WHITE_COLOR, fontSize: RFValue(30), fontWeight: "500" }}>Rs 190,000</Text>
+        <Text style={{ color: Color.WHITE_COLOR, fontSize: RFValue(30), fontWeight: "500" }}>Rs {totalValue}</Text>
         <TouchableOpacity
           style={{
             borderColor: Color.PORTFOLIO_COLOR,
@@ -78,7 +83,7 @@ const PortfolioScreen = ({ navigation }) => {
       </View>
 
       {/* Display Portfolio Items with FlatList */}
-      <View style={{ height: "50%", width: "100%", backgroundColor: Color.WHITE_COLOR }}>
+      <View style={{ height: "55%", width: "100%", backgroundColor: Color.WHITE_COLOR }}>
         <FlatList
           data={portfolioItems}
           renderItem={renderPortfolioItem}

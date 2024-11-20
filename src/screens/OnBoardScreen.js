@@ -6,6 +6,7 @@ import {
   Modal,
   TextInput,
   Image,
+  StyleSheet,
   ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
@@ -15,6 +16,7 @@ import Style from "../common/Style";
 import CommonButton from "../components/CommonButton";
 import CommonTextInput from "../components/CommonTextInput";
 import * as ImagePicker from "expo-image-picker";
+import axios from 'axios';
 import { Snackbar } from "react-native-paper";
 import {
   sendOtpAPI,
@@ -154,40 +156,73 @@ const OnBoardScreen = ({ navigation }) => {
       showSnackbar("Error verifying OTP. Please try again.");
     }
   };
-
   const handleSaveProfile = async () => {
     if (!firstName || !lastName || !email || !imageUri) {
       alert("Please fill out all required fields.");
-      showSnackbar("Please fill out all required fields.");
       return;
     }
-
-    const profileData = {
-      firstName,
-      lastName,
-      email,
-      mobileNo,
-      imageUri,
-    };
-    let accessToken = await AsyncStorage.getItem("authToken");
-    console.log("access_token", access_token);
+  
     try {
-      const response = await createProfileAPI(profileData, access_token);
-      if (response?.status === 200) {
+      // Initialize FormData with proper keys (nested structure like user[field])
+      const profileData = new FormData();
+      profileData.append("user[first_name]", firstName);
+      profileData.append("user[last_name]", lastName);
+      profileData.append("user[email]", email);
+      profileData.append("user[phone_number]", mobileNo);
+  
+      // Append the image file
+      const fileName = imageUri.split("/").pop();
+      const fileType = fileName.split(".").pop();
+      profileData.append("user[image]", {
+        uri: imageUri,
+        name: fileName,
+        type: `image/${fileType}`,
+      });
+  
+      console.log("FormData contents:", profileData); // Debugging FormData
+  
+      // Retrieve the access token from AsyncStorage
+      const accessToken = await AsyncStorage.getItem("authToken");
+      console.log("Access Token:", accessToken); // Debugging token
+  
+      if (!accessToken) {
+        alert("Access token not found. Please log in again.");
+        return;
+      }
+  
+      // Make the API call
+      const response = await axios.put(
+        "https://sneakers-rough-frost-7777.fly.dev/profile",
+        profileData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${accessToken}`, // Correctly include the token
+          },
+        }
+      );
+  
+      // Handle successful response
+      if (response.status === 200 || response.status === 201) {
         alert("Profile created successfully.");
-        showSnackbar("Profile created successfully.");
         setProfilePopUp(false);
         setModalVisible(false);
         navigation.navigate("HomeScreen");
       } else {
         alert("Failed to create profile.");
-        showSnackbar("Failed to create profile.");
       }
     } catch (error) {
-      console.error("Error creating profile:", error);
-      showSnackbar("Failed to create profile.");
+      // Log and show a detailed error message
+      console.error(
+        "Error creating profile:",
+        error.response?.data || error.message
+      );
+      alert(`Failed to create profile. ${error.response?.data?.error || "Please try again."}`);
     }
   };
+  
+
+  
 
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -196,15 +231,21 @@ const OnBoardScreen = ({ navigation }) => {
 
   // Gallery access function
   const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    } else {
-      alert("You did not select any image.");
+      if (!result.canceled) {
+        setImageUri(result.assets[0].uri); // Set the image URI properly
+      } else {
+        alert('You did not select any image.');
+      }
+    } catch (error) {
+      console.error('Image Picker Error:', error);
     }
   };
 
@@ -232,6 +273,7 @@ const OnBoardScreen = ({ navigation }) => {
           textStyle={Style.ONBOARDSCREEN_TEXT1}
           onPress={() => navigation.navigate("HomeScreen")}
           // onPress={() => promptAsync()}
+         
         />
       </View>
 
@@ -293,67 +335,58 @@ const OnBoardScreen = ({ navigation }) => {
 
       {/* Profile Modal */}
       <Modal transparent={true} visible={profilePopUp}>
-        <View style={Style.modalView}>
-          <View style={{ textAlign: "center" }}>
-            <Text style={{ color: Color.WHITE_COLOR }}>Create Profile</Text>
-          </View>
-
-          <View style={Style.profile_view}>
-            <View>
-              <Image
-                source={
-                  imageUri ? { uri: imageUri } : require("../images/user.png")
-                }
-                style={[
-                  Style.profile_img,
-                  { tintColor: !imageUri && Color.WHITE_COLOR },
-                ]}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={Style.upload_btn}
-              onPress={() => pickImageAsync()}
-            >
-              <Text style={Style.upload_btn_txt}>Upload Photo</Text>
-            </TouchableOpacity>
-          </View>
-
-          <CommonTextInput
-            label={"First Name"}
-            placeHolder={"First Name"}
-            value={firstName}
-            onChangeText={setFirstName}
-          />
-          <CommonTextInput
-            label={"Last Name"}
-            placeHolder={"Last Name"}
-            value={lastName}
-            onChangeText={setLastName}
-          />
-          <CommonTextInput
-            label={"Email"}
-            placeHolder={"Email"}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <CommonTextInput
-            label={"Phone Number"}
-            placeHolder={"Phone Number"}
-            value={mobileNo}
-            editable={false}
-          />
-          <CommonButton
-            title={"SAVE"}
-            onPress={() => [
-              setProfilePopUp(false),
-              setModalVisible(!modalVisible),
-              handleSaveProfile(),
-            ]}
-            customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
-          />
+      <View style={Style.modalView}>
+        <View style={{ textAlign: 'center' }}>
+          <Text style={{ color: Color.WHITE_COLOR }}>Create Profile</Text>
         </View>
-      </Modal>
+
+        <View style={Style.profile_view}>
+          <View>
+            <Image
+              source={imageUri ? { uri: imageUri } : require('../images/user.png')}
+              style={[
+                Style.profile_img,
+                { tintColor: !imageUri && Color.WHITE_COLOR },
+              ]}
+            />
+          </View>
+
+          <TouchableOpacity style={Style.upload_btn} onPress={pickImageAsync}>
+            <Text style={Style.upload_btn_txt}>Upload Photo</Text>
+          </TouchableOpacity>
+        </View>
+
+        <CommonTextInput
+          label={'First Name'}
+          placeHolder={'First Name'}
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <CommonTextInput
+          label={'Last Name'}
+          placeHolder={'Last Name'}
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <CommonTextInput
+          label={'Email'}
+          placeHolder={'Email'}
+          value={email}
+          onChangeText={setEmail}
+        />
+        <CommonTextInput
+          label={'Phone Number'}
+          placeHolder={'Phone Number'}
+          value={mobileNo}
+          editable={false}
+        />
+        <CommonButton
+          title={'SAVE'}
+          onPress={handleSaveProfile}
+          customStyle={Style.ONBOARDSCREEN_TEXTFIELD3}
+        />
+      </View>
+    </Modal>
 
       {/* Snackbar for message display */}
       <Snackbar
@@ -382,3 +415,35 @@ const OnBoardScreen = ({ navigation }) => {
 };
 
 export default OnBoardScreen;
+
+const styles = StyleSheet.create({
+  modalView: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileView: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profileImg: {
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+  },
+  uploadBtn: {
+    marginTop: 10,
+    backgroundColor: '#0058F9',
+    padding: 10,
+    borderRadius: 5,
+  },
+  uploadBtnText: {
+    color: '#FFFFFF',
+  },
+  saveButton: {
+    marginTop: 20,
+  },
+});
