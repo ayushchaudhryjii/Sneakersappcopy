@@ -351,6 +351,8 @@ const ProfileScreen = ({ navigation }) => {
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          onPress={() => navigation.navigate("DisplayAddress")}
+          // onPress={() => navigation.navigate("CreateAddress")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text
@@ -387,6 +389,7 @@ const ProfileScreen = ({ navigation }) => {
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          
         >
           <View style={{ gap: RFValue(5) }}>
             <Text

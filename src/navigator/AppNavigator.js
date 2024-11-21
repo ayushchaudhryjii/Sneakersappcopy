@@ -7,6 +7,8 @@ import BottomNavigator from "./BottomNavigator";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import WishListScreen from "../screens/WishListScreen";
 import Buying from "../screens/Buying";
+import CreateAddress from "../screens/CreateAddress";
+import DisplayAddress from "../screens/DisplayAddress";
 // import WishlistScreen from "../screens/WishlistScreen";
 
 const AppNavigator = () => {
@@ -41,6 +43,14 @@ const AppNavigator = () => {
         <Stack.Screen
           name="Buying"
           component={Buying}
+        />
+         <Stack.Screen
+          name="CreateAddress"
+          component={CreateAddress}
+        />
+         <Stack.Screen
+          name="DisplayAddress"
+          component={DisplayAddress}
         />
       </Stack.Navigator>
     </NavigationContainer>
