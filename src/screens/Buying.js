@@ -70,7 +70,7 @@ const Buying = ({ navigation }) => {
 //   );
 
   return (
-    <ScrollView>
+    <ScrollView style={{flex:1,backgroundColor: Color.WHITE_COLOR}}>
       <View style={{ height:RFValue(50), width: "100%", backgroundColor: Color.WHITE_COLOR,padding:RFValue(10) }}>
         <Text  style={{ color: Color.BLACK_COLOR, fontSize: RFValue(20), fontWeight: "500" }}>Your Buying List</Text>
       </View>

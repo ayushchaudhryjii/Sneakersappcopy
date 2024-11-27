@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const AddBankAccount = () => {
+const AddBankAccount = ({ navigation }) => {
   const [formData, setFormData] = useState({
     bank_name: "",
     ifsc: "",
@@ -18,9 +25,15 @@ const AddBankAccount = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate input fields
-    if (!formData.bank_name || !formData.ifsc || !formData.account_type || !formData.account_number || !formData.confirm_account_number || !formData.account_holder_name) {
-      Alert.alert("Error", "All fields are required.");
+    if (
+      !formData.bank_name ||
+      !formData.ifsc ||
+      !formData.account_type ||
+      !formData.account_number ||
+      !formData.confirm_account_number ||
+      !formData.account_holder_name
+    ) {
+      Alert.alert("Plz fill all fields", "All fields are required.");
       return;
     }
 
@@ -30,26 +43,18 @@ const AddBankAccount = () => {
     }
 
     try {
-      // Retrieve the authorization token from AsyncStorage
-
       const token = await AsyncStorage.getItem("authToken");
-console.log("Retrieved Token:", token);
-
-if (!token) {
-  Alert.alert("Error", "Authorization token not found. Please login again.");
-  return;
-}
-
-
+      if (!token) {
+        Alert.alert("Error", "Authorization token not found. Please login again.");
+        return;
+      }
 
       const apiUrl = "https://sneakers-rough-frost-7777.fly.dev/banks";
-
       const headers = {
         "Content-Type": "application/json",
-        Authorization: `${token}`, // Add the token dynamically
+        Authorization: `${token}`,
       };
 
-      // Make the API request with Axios
       const response = await axios.post(apiUrl, { bank: formData }, { headers });
 
       if (response.status === 200 || response.status === 201) {
@@ -62,19 +67,22 @@ if (!token) {
           confirm_account_number: "",
           account_holder_name: "",
         });
+        navigation.goBack(); // Navigate back to the list
       } else {
         Alert.alert("Error", response.data.message || "Something went wrong.");
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", error.response?.data?.message || "Network error. Please try again.");
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Network error. Please try again."
+      );
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add a New Bank Account</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Bank Name"
@@ -113,9 +121,8 @@ if (!token) {
         keyboardType="numeric"
         onChangeText={(value) => handleInputChange("confirm_account_number", value)}
       />
-
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Add</Text>
+      <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+        <Text style={styles.addButtonText}>Add Bank Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -128,28 +135,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#1C1D21",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#929394",
     borderRadius: 5,
     padding: 10,
     marginBottom: 15,
     fontSize: 16,
   },
-  button: {
+  addButton: {
     backgroundColor: "#000",
-    padding: 15,
+    paddingVertical: 15,
     borderRadius: 5,
     alignItems: "center",
   },
-  buttonText: {
+  addButtonText: {
     color: "#fff",
-    fontSize: 16,
     fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

@@ -81,6 +81,8 @@ const DisplayAddress = ({ navigation }) => {
     const { attributes } = item;
     const { pin_code, city, state, address_line } = attributes;
 
+    
+
     return (
       <View
         style={[

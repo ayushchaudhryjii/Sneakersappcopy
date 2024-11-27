@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,38 +10,30 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { useIsFocused } from "@react-navigation/native";
 
-const BankAccountsList = ({navigation}) => {
+const BankAccountsList = ({ navigation }) => {
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBankId, setSelectedBankId] = useState(null);
+  const isFocused = useIsFocused();
 
-  useEffect(() => {
-    fetchBankData();
-  }, []);
-
-  const fetchBankData = async () => {
+  const fetchBankData = useCallback(async () => {
+    setLoading(true);
     try {
-      // Retrieve token from AsyncStorage
       const token = await AsyncStorage.getItem("authToken");
-      console.log("Retrieved Token:", token);
-
       if (!token) {
-        Alert.alert(
-          "Error",
-          "Authorization token not found. Please login again."
-        );
+        Alert.alert("Error", "Authorization token not found. Please login again.");
+        setLoading(false);
         return;
       }
 
       const apiUrl = "https://sneakers-rough-frost-7777.fly.dev/banks";
-
       const headers = {
         "Content-Type": "application/json",
-        Authorization: `${token}`, // Use Bearer token for authorization
+        Authorization: `${token}`,
       };
 
-      // Fetch data from the API
       const response = await axios.get(apiUrl, { headers });
       const fetchedBanks = response.data.data.map((item) => ({
         id: item.attributes.id,
@@ -51,17 +43,24 @@ const BankAccountsList = ({navigation}) => {
         account_holder_name: item.attributes.account_holder_name,
         account_type: item.attributes.account_type,
       }));
+
       setBanks(fetchedBanks);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
       Alert.alert(
         "Error",
         error.response?.data?.message || "Failed to fetch data. Please try again."
       );
+    } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchBankData();
+    }
+  }, [isFocused, fetchBankData]);
 
   const handleSelectBank = (id) => {
     setSelectedBankId(id);
@@ -101,8 +100,9 @@ const BankAccountsList = ({navigation}) => {
         renderItem={renderBankItem}
         ListEmptyComponent={<Text style={styles.emptyText}>No bank accounts found.</Text>}
       />
-      <TouchableOpacity style={styles.addButton} 
-      onPress={() => navigation.navigate("AddBankAccount")}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate("AddBankAccount")}
       >
         <Text style={styles.addButtonText}>+ ADD NEW PAYMENT METHOD</Text>
       </TouchableOpacity>
