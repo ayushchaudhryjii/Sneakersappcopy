@@ -308,7 +308,7 @@ export default {
     height: RFValue(45),
     marginHorizontal: RFValue(15),
     flexDirection: "row",
-    margin: RFValue(18),
+    margin: RFValue(10),
   },
   iocn_view: {
     justifyContent: "center",

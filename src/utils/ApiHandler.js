@@ -188,3 +188,4 @@ export const getProfileAPI = async (token) => {
     throw error;
   }
 };
+

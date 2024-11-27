@@ -9,6 +9,8 @@ import WishListScreen from "../screens/WishListScreen";
 import Buying from "../screens/Buying";
 import CreateAddress from "../screens/CreateAddress";
 import DisplayAddress from "../screens/DisplayAddress";
+import AddBankAccount from "../screens/AddBankAccount";
+import BankAccountsList from "../screens/BankAccountsList";
 // import WishlistScreen from "../screens/WishlistScreen";
 
 const AppNavigator = () => {
@@ -51,6 +53,14 @@ const AppNavigator = () => {
          <Stack.Screen
           name="DisplayAddress"
           component={DisplayAddress}
+        />
+         <Stack.Screen
+          name="AddBankAccount"
+          component={AddBankAccount}
+        />
+          <Stack.Screen
+          name="BankAccountsList"
+          component={BankAccountsList}
         />
       </Stack.Navigator>
     </NavigationContainer>

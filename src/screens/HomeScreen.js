@@ -37,13 +37,12 @@ const HomeScreen = ({ navigation }) => {
 
   // Fetching initial data
   useEffect(() => {
-    handleSearch();
     fetchInitialData();
   }, []);
 
   useEffect(() => {
     handleSearch();
-  }, [selectedBrand, selectedSize, selectedReleaseYear]);
+  }, [selectedBrand, selectedSize, selectedReleaseYear, query]);
 
   const fetchInitialData = async () => {
     setLoading(true);
@@ -61,19 +60,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // const handleSearch = async () => {
-  //   console.log("WORKINHHHHH")
-  //   setLoading(true);
-  //   try {
-  //     const searchData = await searchProductAPI(query);
-  //     console.log("searchData",searchData)
-  //     setSearchResults(searchData?.data.data || []);
-  //   } catch (error) {
-  //     console.error("Error searching products:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleSearch = async () => {
     console.log("Searching with filters:", {
       query,
@@ -101,23 +87,14 @@ const HomeScreen = ({ navigation }) => {
   const applyFilter = (type, value) => {
     if (type === "Brand") {
       setSelectedBrand(value);
-      setSelectedSize("");
-      setSelectedReleaseYear("");
     } else if (type === "Size") {
       setSelectedSize(value);
-      setSelectedBrand("");
-      setSelectedReleaseYear("");
     } else if (type === "Release Year") {
       setSelectedReleaseYear(value);
-      setSelectedBrand("");
-      setSelectedSize("");
     }
 
     setFilterModal(false);
     setListModal(false);
-
-    // Trigger search after applying the filter
-    handleSearch();
   };
 
   const closeModal = () => {
@@ -135,6 +112,14 @@ const HomeScreen = ({ navigation }) => {
     selectedSize,
     selectedReleaseYear,
   ].filter(Boolean).length;
+
+  // Function to determine if the filter is selected (for styling)
+  const isSelected = (type, value) => {
+    if (type === "Brand" && value === selectedBrand) return true;
+    if (type === "Size" && value === selectedSize) return true;
+    if (type === "Release Year" && value === selectedReleaseYear) return true;
+    return false;
+  };
 
   const renderList = ({ item }) => {
     return (
@@ -180,7 +165,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
         <View style={{ width: "20%", justifyContent: "center" }}>
           <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-            Rs {item.attributes.mrp}
+          ₹ {item.attributes.mrp}
           </Text>
           <Text
             style={{ color: "#1C1D21AD", fontSize: 13, fontWeight: "bold" }}
@@ -197,10 +182,18 @@ const HomeScreen = ({ navigation }) => {
       filterType === "Size"
         ? item.attributes.size_number
         : item.attributes.name;
+    const selected = isSelected(filterType, displayText); // Check if it's selected
     return (
       <TouchableOpacity onPress={() => applyFilter(filterType, displayText)}>
         <View style={Style.listItem}>
-          <Text style={Style.listText}>{displayText}</Text>
+          <Text
+            style={[
+              Style.listText,
+              selected && { color: "red" }, // Change text color to red when selected
+            ]}
+          >
+            {displayText}
+          </Text>
           <Image
             source={require("../images/back.png")}
             style={Style.arrowIcon}
@@ -212,16 +205,6 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={Style.contain}>
-      <View style={Style.home_header_viee}>
-        <Text style={Style.home_header_txt}>Market</Text>
-        <TouchableOpacity
-          style={Style.filter_btn_view}
-          onPress={() => setFilterModal(true)}
-        >
-          {/* <Text style={Style.filter_btn_txt}>Filter (0)</Text> */}
-          <Text style={Style.filter_btn_txt}>Filter ({appliedFilters})</Text>
-        </TouchableOpacity>
-      </View>
       <View style={Style.search_icon_view}>
         <View style={Style.iocn_view}>
           <Image
@@ -231,17 +214,24 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <TextInput
-          placeholder="Search products..."
+          placeholder="Search products by name ..."
           value={query}
           onChangeText={(text) => {
             setQuery(text);
-            if (text === "") {
-              handleSearch();
-            }
+            handleSearch(); // trigger search on text change
           }}
-          onSubmitEditing={() => handleSearch()}
+          onSubmitEditing={() => handleSearch()} // trigger search on submit as well
           style={{ width: "100%", height: RFValue(45) }}
         />
+      </View>
+      <View style={Style.home_header_viee}>
+        <Text style={Style.home_header_txt}>Market</Text>
+        <TouchableOpacity
+          style={Style.filter_btn_view}
+          onPress={() => setFilterModal(true)}
+        >
+          <Text style={Style.filter_btn_txt}>Filter ({appliedFilters})</Text>
+        </TouchableOpacity>
       </View>
 
       {loading && <Loader />}
@@ -256,49 +246,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={Style.ONBOARDSCREEN_TEXT1}>Data not found</Text>
         </View>
       )}
-      {/* 
-      <Modal transparent={true} visible={filterModal}>
-        <View style={Style.modalView}>
-          <TouchableOpacity onPress={() => setFilterModal(!filterModal)}>
-            <Image
-              style={Style.modal_back_img}
-              resizeMode="contain"
-              source={require("../images/back.png")}
-            />
-          </TouchableOpacity>
-          <Text style={Style.modalText}>Filter</Text>
-          <TouchableOpacity
-            onPress={() => openFilterModal("Brand")}
-            style={Style.listItem}
-          >
-            <Text style={Style.modalText}>Brand</Text>
-            <Image
-              source={require("../images/back.png")}
-              style={Style.arrowIcon}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => openFilterModal("Size")}
-            style={Style.listItem}
-          >
-            <Text style={Style.modalText}>Size</Text>
-            <Image
-              source={require("../images/back.png")}
-              style={Style.arrowIcon}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => openFilterModal("Release Year")}
-            style={Style.listItem}
-          >
-            <Text style={Style.modalText}>Release Year</Text>
-            <Image
-              source={require("../images/back.png")}
-              style={Style.arrowIcon}
-            />
-          </TouchableOpacity>
-        </View>
-      </Modal> */}
+
       <Modal transparent={true} visible={filterModal}>
         <View style={Style.modalView}>
           <View
@@ -333,7 +281,6 @@ const HomeScreen = ({ navigation }) => {
 
           <Text style={Style.modalText}>Filter</Text>
 
-          {/* Brand Filter */}
           <TouchableOpacity
             onPress={() => openFilterModal("Brand")}
             style={Style.listItem}
@@ -345,7 +292,6 @@ const HomeScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
 
-          {/* Size Filter */}
           <TouchableOpacity
             onPress={() => openFilterModal("Size")}
             style={Style.listItem}
@@ -357,7 +303,6 @@ const HomeScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
 
-          {/* Release Year Filter */}
           <TouchableOpacity
             onPress={() => openFilterModal("Release Year")}
             style={Style.listItem}
@@ -368,8 +313,6 @@ const HomeScreen = ({ navigation }) => {
               style={Style.arrowIcon}
             />
           </TouchableOpacity>
-
-          {/* Reset Filters Button */}
         </View>
       </Modal>
 

@@ -199,6 +199,7 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             borderTopWidth: RFValue(1),
@@ -229,7 +230,7 @@ const ProfileScreen = ({ navigation }) => {
           <View>
             <Image
               source={require("../images/rightarrow.png")}
-              style={{ height: RFValue(30), width: RFValue(30) }}
+              style={{ height: RFValue(30), width: RFValue(30), }}
             />
           </View>
         </TouchableOpacity>
@@ -237,6 +238,7 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
@@ -275,10 +277,12 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          onPress={() => navigation.navigate("BankAccountsList")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text
@@ -311,6 +315,7 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
@@ -347,6 +352,7 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
@@ -385,10 +391,13 @@ const ProfileScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
             borderColor: Color.BLACK_COLOR,
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          onPress={() => navigation.navigate("BankAccountsList")}
+         
           
         >
           <View style={{ gap: RFValue(5) }}>
