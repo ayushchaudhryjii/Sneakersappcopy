@@ -122,6 +122,9 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderList = ({ item }) => {
+
+    const sizes = item.attributes.sizes || []; // Ensure sizes array is defined
+    const mrp = sizes.length > 0 ? sizes[0].mrp : "N/A";
     return (
       <TouchableOpacity
         onPress={() => {
@@ -165,7 +168,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
         <View style={{ width: "20%", justifyContent: "center" }}>
           <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-          ₹ {item.attributes.mrp}
+          ₹ {mrp}
           </Text>
           <Text
             style={{ color: "#1C1D21AD", fontSize: 13, fontWeight: "bold" }}

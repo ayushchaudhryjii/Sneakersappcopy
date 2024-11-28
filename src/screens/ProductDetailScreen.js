@@ -127,7 +127,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
       <View style={{flexDirection:"row" , gap:RFValue(20),marginHorizontal:RFValue(15),justifyContent:"space-between"}}>
         <View style={{backgroundColor:Color.LIGHT_GREY , flexDirection:"row",height:RFValue(100),width:RFValue(140),justifyContent:"center",alignItems:"center",gap:RFValue(10)}}>
           <View style={{gap:RFValue(7)}}>
-            <Text style={{fontSize:RFValue(18),fontWeight:"600"}}>Rs {detailData.attributes.lowest_bid}</Text>
+            <Text style={{fontSize:RFValue(18),fontWeight:"600"}}>Rs {detailData.attributes.sizes[0]?.lowest_bid || "N/A"}</Text>
             <Text style={{fontSize:RFValue(15),fontWeight:"500",color:Color.TEXT_COLOR_PRODUCT}}>Lowest Ask</Text>
 
           </View>
@@ -145,9 +145,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
         </View>
         <View style={{backgroundColor:Color.LIGHT_GREY , flexDirection:"row",height:RFValue(100),width:RFValue(140),justifyContent:"center",alignItems:"center",gap:RFValue(10)}}>
           <View style={{gap:RFValue(7)}}>
-            <Text style={{fontSize:RFValue(18),fontWeight:"600"}}>Rs {detailData.attributes.highest_bid}</Text>
+            <Text style={{fontSize:RFValue(18),fontWeight:"600"}}>Rs  {detailData.attributes.sizes[0]?.highest_bid || "N/A"} </Text>
             <Text style={{fontSize:RFValue(15),fontWeight:"500",color:Color.TEXT_COLOR_PRODUCT}}>Highest Bid</Text>
-
+            {/* {detailData.attributes.highest_bid} */}
           </View>
           <View>
           <Image
