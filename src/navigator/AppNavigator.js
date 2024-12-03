@@ -11,6 +11,7 @@ import CreateAddress from "../screens/CreateAddress";
 import DisplayAddress from "../screens/DisplayAddress";
 import AddBankAccount from "../screens/AddBankAccount";
 import BankAccountsList from "../screens/BankAccountsList";
+import RelatedProducts from "../screens/RelatedProducts";
 // import WishlistScreen from "../screens/WishlistScreen";
 
 const AppNavigator = () => {
@@ -61,6 +62,10 @@ const AppNavigator = () => {
           <Stack.Screen
           name="BankAccountsList"
           component={BankAccountsList}
+        />
+          <Stack.Screen
+          name="RelatedProducts"
+          component={RelatedProducts}
         />
       </Stack.Navigator>
     </NavigationContainer>

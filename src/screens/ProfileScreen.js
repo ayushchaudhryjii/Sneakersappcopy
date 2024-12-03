@@ -282,7 +282,6 @@ const ProfileScreen = ({ navigation }) => {
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
-          onPress={() => navigation.navigate("BankAccountsList")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text
@@ -320,6 +319,7 @@ const ProfileScreen = ({ navigation }) => {
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
+          onPress={() => navigation.navigate("RelatedProducts")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text
