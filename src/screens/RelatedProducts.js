@@ -1,111 +1,151 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, FlatList, ActivityIndicator } from "react-native";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 
 const RelatedProducts = () => {
-  const [products, setProducts] = useState([]);
+  const [sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Fetch related products
+  // Fetch sizes from the API
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchSizes = async () => {
       try {
-        const response = await axios.get(
-          "https://sneakers-rough-frost-7777.fly.dev/related_products?product_type=sneakers"
-        );
-        setProducts(response.data.data);
+        const response = await fetch('https://sneakers-rough-frost-7777.fly.dev/sizes');
+        const data = await response.json();
+        setSizes(data.data);
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
+        console.error('Error fetching sizes:', error);
         setLoading(false);
       }
     };
-    fetchProducts();
+
+    fetchSizes();
   }, []);
 
-  const renderProduct = ({ item }) => {
-    const { name, city, image, sizes } = item.attributes;
-    const lowestBid = sizes[0]?.lowest_bid || "N/A";
-
-    return (
-      <View style={styles.productContainer}>
-        <Image source={{ uri: image.url }} style={styles.productImage} />
-        <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productCity}>{city}</Text>
-        <Text style={styles.lowestAsk}>Lowest Ask</Text>
-        <Text style={styles.price}>₹{lowestBid}</Text>
-      </View>
-    );
-  };
-
-  if (loading) {
-    return <ActivityIndicator size="large" color="#000" style={styles.loader} />;
-  }
+  // Render size options in the modal
+  const renderSizeOption = ({ item }) => (
+    <TouchableOpacity
+      style={styles.option}
+      onPress={() => {
+        setSelectedSize(item.attributes.size_number);
+        setModalVisible(false);
+      }}
+    >
+      <Text style={styles.optionText}>Size {item.attributes.size_number}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Related Products</Text>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-      />
+      <Text style={styles.title}>Size</Text>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.dropdownText}>
+              {selectedSize ? `Size ${selectedSize}` : 'Select a size'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Modal for size selection */}
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <FlatList
+                  data={sizes}
+                  renderItem={renderSizeOption}
+                  keyExtractor={(item) => item.id.toString()}
+                />
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: "#fff",
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
-  listContent: {
-    paddingHorizontal: 8,
-  },
-  productContainer: {
-    marginRight: 16,
-    alignItems: "center",
-    width: 150,
-    borderRadius: 8,
-    backgroundColor: "#f9f9f9",
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     padding: 10,
+    width: '100%',
   },
-  productImage: {
-    width: 120,
-    height: 100,
-    resizeMode: "contain",
-    marginBottom: 8,
-  },
-  productName: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  productCity: {
-    fontSize: 12,
-    color: "#888",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  lowestAsk: {
-    fontSize: 12,
-    color: "#888",
-  },
-  price: {
+  dropdownText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#000",
+    color: '#000',
   },
-  loader: {
-    marginTop: 20,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  option: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

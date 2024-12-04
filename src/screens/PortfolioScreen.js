@@ -1,20 +1,22 @@
-// src/screens/PortfolioScreen.js
-import { View, Text, Image, FlatList, TouchableOpacity } from 'react-native';
-import React from 'react';
-import Color from '../common/Color';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { usePortfolio } from './PorfolioContext';
+import { View, Text, Image, FlatList, TouchableOpacity } from "react-native";
+import React from "react";
+import Color from "../common/Color";
+import { RFValue } from "react-native-responsive-fontsize";
+import { usePortfolio } from "./PorfolioContext";
 
 const PortfolioScreen = ({ navigation }) => {
   const { portfolioItems } = usePortfolio(); // Access portfolioItems from context
 
-  const totalValue = portfolioItems.reduce(
-    (sum, item) => sum + (item.attributes?.mrp || 0),
-    0
-  );
+  // Calculate the total value of the portfolio safely
+  const totalValue = portfolioItems.reduce((sum, item) => {
+    const mrp = item?.attributes?.sizes?.[0]?.mrp || 0; // Safely access the first size's MRP
+    return sum + mrp;
+  }, 0);
 
   const renderPortfolioItem = ({ item }) => {
-    const mrp = item.attributes?.mrp || "N/A"; // Safely access MRP or show fallback
+    const size = item?.attributes?.sizes?.[0]; // Access the first size object
+    const mrp = size?.mrp || "N/A"; // Safely access MRP or fallback to "N/A"
+
     return (
       <View
         style={{
@@ -27,7 +29,7 @@ const PortfolioScreen = ({ navigation }) => {
       >
         <View style={{ width: "20%", justifyContent: "center" }}>
           <Image
-            source={{ uri: item.attributes.image?.url || "" }} // Default to an empty string if URL is missing
+            source={{ uri: item?.attributes?.image?.url || "" }} // Fallback to an empty string if URL is missing
             resizeMode="contain"
             style={{ height: RFValue(60), width: RFValue(60) }}
           />
@@ -41,10 +43,10 @@ const PortfolioScreen = ({ navigation }) => {
           }}
         >
           <Text style={{ color: "#1C1D21AD", fontSize: 14, fontWeight: "bold" }}>
-            {item.attributes.name || "Unknown Name"}
+            {item?.attributes?.name || "Unknown Name"}
           </Text>
           <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-            {item.attributes.brand || "Unknown Brand"}
+            {item?.attributes?.brand || "Unknown Brand"}
           </Text>
         </View>
         <View style={{ width: "25%", justifyContent: "center" }}>
@@ -61,6 +63,7 @@ const PortfolioScreen = ({ navigation }) => {
 
   return (
     <View>
+      {/* Total Value Section */}
       <View
         style={{
           height: "45%",
@@ -71,10 +74,22 @@ const PortfolioScreen = ({ navigation }) => {
           gap: RFValue(20),
         }}
       >
-        <Text style={{ color: Color.PORTFOLIO_COLOR, fontSize: RFValue(20), fontWeight: "500" }}>
+        <Text
+          style={{
+            color: Color.PORTFOLIO_COLOR,
+            fontSize: RFValue(20),
+            fontWeight: "500",
+          }}
+        >
           Total value
         </Text>
-        <Text style={{ color: Color.WHITE_COLOR, fontSize: RFValue(30), fontWeight: "500" }}>
+        <Text
+          style={{
+            color: Color.WHITE_COLOR,
+            fontSize: RFValue(30),
+            fontWeight: "500",
+          }}
+        >
           Rs {totalValue}
         </Text>
         <TouchableOpacity
@@ -94,11 +109,19 @@ const PortfolioScreen = ({ navigation }) => {
             source={require("../images/addline.png")}
             style={{ width: RFValue(20), height: RFValue(20) }}
           />
-          <Text style={{ color: Color.WHITE_COLOR, fontSize: RFValue(14), fontWeight: "500" }}>
+          <Text
+            style={{
+              color: Color.WHITE_COLOR,
+              fontSize: RFValue(14),
+              fontWeight: "500",
+            }}
+          >
             ADD SNEAKERS
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Your Shoe-Rack Section */}
       <View
         style={{
           height: RFValue(55),
@@ -107,13 +130,25 @@ const PortfolioScreen = ({ navigation }) => {
           padding: RFValue(15),
         }}
       >
-        <Text style={{ color: Color.BLACK_COLOR, fontSize: RFValue(20), fontWeight: "500" }}>
+        <Text
+          style={{
+            color: Color.BLACK_COLOR,
+            fontSize: RFValue(20),
+            fontWeight: "500",
+          }}
+        >
           Your Shoe-Rack
         </Text>
       </View>
 
-      {/* Display Portfolio Items with FlatList */}
-      <View style={{ height: "55%", width: "100%", backgroundColor: Color.WHITE_COLOR }}>
+      {/* Portfolio Items */}
+      <View
+        style={{
+          height: "55%",
+          width: "100%",
+          backgroundColor: Color.WHITE_COLOR,
+        }}
+      >
         <FlatList
           data={portfolioItems}
           renderItem={renderPortfolioItem}

@@ -319,7 +319,7 @@ const ProfileScreen = ({ navigation }) => {
             borderBottomWidth: RFValue(1),
             paddingVertical: RFValue(12),
           }}
-          onPress={() => navigation.navigate("RelatedProducts")}
+          // onPress={() => navigation.navigate("RelatedProducts")}
         >
           <View style={{ gap: RFValue(5) }}>
             <Text
