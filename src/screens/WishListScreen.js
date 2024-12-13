@@ -4,8 +4,9 @@ import { usePortfolio } from "./PorfolioContext";
 import { RFValue } from "react-native-responsive-fontsize";
 import Color from "../common/Color";
 
-const WishListScreen = () => {
+const WishListScreen = ({item}) => {
   const { wishlistItems } = usePortfolio(); // Access wishlistItems
+  const highestBid = item?.attributes?.highest_bid ?? "N/A";
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -17,7 +18,7 @@ const WishListScreen = () => {
       <View style={styles.itemDetails}>
         <Text style={styles.itemName}>{item.attributes.name}</Text>
         <Text style={styles.itemBrand}>{item.attributes.brand}</Text>
-        <Text style={styles.itemPrice}>Rs {item.attributes.highest_bid}</Text>
+        <Text style={styles.itemPrice}>Rs {highestBid}</Text>
       </View>
     </View>
   );

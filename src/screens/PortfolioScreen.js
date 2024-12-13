@@ -1,4 +1,4 @@
-import { View, Text, Image, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, Image, FlatList, TouchableOpacity, ScrollView } from "react-native";
 import React from "react";
 import Color from "../common/Color";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -102,12 +102,13 @@ const PortfolioScreen = ({ navigation }) => {
             alignItems: "center",
             flexDirection: "row",
             gap: RFValue(5),
+            borderRadius:RFValue(3),
           }}
           onPress={() => navigation.navigate("HomeScreen")}
         >
           <Image
             source={require("../images/addline.png")}
-            style={{ width: RFValue(20), height: RFValue(20) }}
+            style={{ width: RFValue(20), height: RFValue(20), tintColor: Color.BUTTON_COLOR }}
           />
           <Text
             style={{
@@ -124,10 +125,11 @@ const PortfolioScreen = ({ navigation }) => {
       {/* Your Shoe-Rack Section */}
       <View
         style={{
-          height: RFValue(55),
+          height: RFValue(50),
           width: "100%",
           backgroundColor: Color.WHITE_COLOR,
-          padding: RFValue(15),
+          paddingLeft: RFValue(15),
+          justifyContent:"center"
         }}
       >
         <Text
@@ -142,9 +144,9 @@ const PortfolioScreen = ({ navigation }) => {
       </View>
 
       {/* Portfolio Items */}
-      <View
+      <ScrollView
         style={{
-          height: "55%",
+          height: "50%",
           width: "100%",
           backgroundColor: Color.WHITE_COLOR,
         }}
@@ -159,7 +161,7 @@ const PortfolioScreen = ({ navigation }) => {
             gap: RFValue(20),
           }}
         />
-      </View>
+      </ScrollView>
     </View>
   );
 };

@@ -5,8 +5,11 @@ import Color from '../common/Color';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { usePortfolio } from './PorfolioContext';
 
-const Buying = ({ navigation }) => {
-  const { portfolioItems } = usePortfolio(); // Access portfolioItems from context
+const Buying = ({ navigation , item }) => {
+  const { portfolioItems } = usePortfolio(); 
+  const size = item?.attributes?.sizes?.[0]; // Access the first size object
+  const mrp = size?.mrp || "N/A"; 
+  const highestBid = item?.attributes?.highest_bid ?? item?.attributes?.mrp ?? "N/A";// Access portfolioItems from context
 
 
   const renderPortfolioItem = ({ item }) => (
@@ -19,13 +22,14 @@ const Buying = ({ navigation }) => {
       <View style={styles.itemDetails}>
         <Text style={styles.itemName}>{item.attributes.name}</Text>
         <Text style={styles.itemBrand}>{item.attributes.brand}</Text>
-        <Text style={styles.itemPrice}>Rs {item.attributes.highest_bid}</Text>
+        <Text style={styles.itemPrice}>Rs {mrp}</Text>
       </View>
     </View>
   );
 
  
 
+  
 //   const renderPortfolioItem = ({ item }) => (
 //     <View
 //       style={{

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
+  FlatList,          
   StyleSheet,
   Alert,
   TouchableOpacity,
@@ -27,7 +27,7 @@ const DisplayAddress = ({ navigation }) => {
       const response = await fetch(
         "https://sneakers-rough-frost-7777.fly.dev/addresses",
         {
-          method: "GET",
+method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `${authToken}`,
@@ -115,7 +115,8 @@ const DisplayAddress = ({ navigation }) => {
       <Text style={styles.header}>Address</Text>
       {loading ? (
         <Text style={styles.loading}>Loading...</Text>
-      ) : addresses.length === 0 ? (
+      ) : addresses.length === 0
+       ? (
         <Text style={styles.emptyMessage}>No addresses found.</Text>
       ) : (
         <FlatList
